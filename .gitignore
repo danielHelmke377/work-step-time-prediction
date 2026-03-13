@@ -1,0 +1,17 @@
+﻿# Große Datendatei
+orders_simplified_sample.json
+
+# Temporäre Ausgabedateien
+eda_output.txt
+model_output.txt
+predict_demo_out.txt
+predict_batch_out.txt
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual Environment
+venv/
+.env
