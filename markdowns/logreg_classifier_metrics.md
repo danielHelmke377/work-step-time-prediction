@@ -1,0 +1,104 @@
+# Stage 1 Classifier — Logistic Regression Performance Report
+
+**Model**: Logistic Regression (Stage 1, one model per work-step target)  
+**Dataset**: Repair order data — `orders_simplified_sample.json`  
+**Split**: 60 % train / 20 % validation / 20 % test (stratified by repair complexity)  
+**Task**: Binary classification — *does this work step occur in the order?* (yes / no)
+
+---
+
+## What Do These Metrics Mean?
+
+| Metric | Formula | What it tells you |
+|---|---|---|
+| **Precision** | TP / (TP + FP) | Of all orders the model *predicted* as positive, how many actually were? High precision = few false alarms. |
+| **Recall** | TP / (TP + FN) | Of all orders that *truly* had this work step, how many did the model catch? High recall = few missed positives. |
+| **Accuracy** | (TP + TN) / All | Overall fraction of correct predictions (both positive and negative). Can be misleading for rare classes. |
+
+> **Why Accuracy can be misleading here**: If a work step occurs in only 5 % of orders, a model that *always* predicts "no" achieves 95 % accuracy while being completely useless. For imbalanced targets like `allTiresService`, always check Precision and Recall alongside Accuracy.
+
+> **Threshold**: Each target uses a **custom decision threshold** tuned on the validation set to maximise F1-score. The default of 0.5 is not used.
+
+---
+
+## Per-Target Results — Validation Set
+
+| Target | Precision | Recall | Accuracy | Threshold |
+|---|:---:|:---:|:---:|:---:|
+| cleaning | 1.0000 | 1.0000 | 1.0000 | 0.05 |
+| hailrepair | 0.9697 | 1.0000 | 0.9898 | 0.20 |
+| paintingFinish | 0.9589 | 1.0000 | 0.9694 | 0.41 |
+| paintingSpraying | 0.9855 | 0.9855 | 0.9796 | 0.05 |
+| dismounting | 0.9778 | 0.9778 | 0.9592 | 0.10 |
+| paintingPreparation | 0.9714 | 0.9714 | 0.9592 | 0.06 |
+| assembly | 0.9425 | 0.9535 | 0.9082 | 0.94 |
+| bodyrepair | 0.8800 | 0.6875 | 0.8673 | 0.82 |
+| wheelmeasurement | 0.5185 | 0.7000 | 0.8061 | 0.62 |
+| calibration | 0.6400 | 0.6957 | 0.8367 | 0.56 |
+| plasticrepair | 0.4211 | 1.0000 | 0.6633 | 0.33 |
+| glas | 0.4000 | 0.5714 | 0.9082 | 0.91 |
+| bodymeasurement | 0.2000 | 0.2500 | 0.9286 | 0.95 |
+| allTiresService | 0.1250 | 1.0000 | 0.8571 | 0.45 |
+
+### 🔢 Overall (Macro-Average) — Validation Set
+
+| Metric | Value |
+|---|:---:|
+| **Macro Precision** | **0.716** |
+| **Macro Recall** | **0.848** |
+| **Macro Accuracy** | **0.910** |
+
+*Macro-average = simple unweighted mean across all 14 targets.*
+
+---
+
+## Per-Target Results — Test Set
+
+| Target | Precision | Recall | Accuracy | Threshold |
+|---|:---:|:---:|:---:|:---:|
+| cleaning | 0.9691 | 1.0000 | 0.9697 | 0.05 |
+| dismounting | 0.9438 | 0.9767 | 0.9293 | 0.10 |
+| paintingPreparation | 0.9714 | 0.9714 | 0.9596 | 0.06 |
+| paintingSpraying | 0.9714 | 0.9714 | 0.9596 | 0.05 |
+| hailrepair | 0.9655 | 0.9655 | 0.9798 | 0.20 |
+| paintingFinish | 0.9306 | 0.9571 | 0.9192 | 0.41 |
+| assembly | 0.9630 | 0.8571 | 0.8384 | 0.94 |
+| glas | 0.7500 | 0.7500 | 0.9596 | 0.91 |
+| wheelmeasurement | 0.6000 | 0.6923 | 0.7980 | 0.62 |
+| bodyrepair | 0.8000 | 0.5714 | 0.7980 | 0.82 |
+| calibration | 0.4865 | 0.6923 | 0.7273 | 0.56 |
+| plasticrepair | 0.2500 | 1.0000 | 0.5455 | 0.33 |
+| allTiresService | 0.1538 | 0.4000 | 0.8586 | 0.45 |
+| bodymeasurement | 0.1111 | 0.2500 | 0.8889 | 0.95 |
+
+### 🔢 Overall (Macro-Average) — Test Set
+
+| Metric | Value |
+|---|:---:|
+| **Macro Precision** | **0.703** |
+| **Macro Recall** | **0.779** |
+| **Macro Accuracy** | **0.852** |
+
+*Macro-average = simple unweighted mean across all 14 targets.*
+
+---
+
+## Key Observations
+
+### ✅ Strong performers
+- **`cleaning`, `hailrepair`, `paintingFinish`, `paintingSpraying`, `dismounting`, `paintingPreparation`** — all achieve Precision > 0.93 and Recall > 0.95 on the test set. These work steps have clear, distinct language patterns in the order text.
+
+### ⚠️ Moderate performers
+- **`assembly`, `glas`, `wheelmeasurement`, `bodyrepair`** — decent recall but precision drops, meaning the model sometimes predicts these when they are not present.
+
+### ❌ Weak performers
+- **`allTiresService`** — Recall 0.40, Precision 0.15 on the test set. This class has very few positive examples and ambiguous text signals (AP=0.12 in the PR curve). The model is mostly guessing.
+- **`bodymeasurement`** — Only 25 % of true occurrences are caught. Likely a rare class with little distinguishing text.
+- **`plasticrepair`** — Recall is perfect (1.0) but Precision is only 0.25, meaning 3 out of every 4 positive predictions are false alarms. The threshold (0.33) is very low.
+
+### 📉 Val → Test generalisation
+Macro Precision drops from **0.716 → 0.703** and Recall from **0.848 → 0.779**, which is a modest and expected degradation. The model generalises well on the majority of targets. The biggest drops come from `calibration` (Recall 0.696 → 0.692) and `bodymeasurement` — both rare classes with limited training data.
+
+---
+
+*Source data: `model_plots/logreg_clf_metrics.csv` — generated by `code/model_phase2.py`, section 4b.*

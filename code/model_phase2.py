@@ -42,7 +42,7 @@ from scipy.stats import spearmanr
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression, Ridge
 from sklearn.metrics import (
-    f1_score, precision_score, recall_score,
+    f1_score, precision_score, recall_score, accuracy_score,
     mean_absolute_error, mean_squared_error,
     precision_recall_curve, average_precision_score,
 )
@@ -60,7 +60,7 @@ except ImportError:
 warnings.filterwarnings("ignore")
 
 # ── Config ───────────────────────────────────────────────────────────────────
-DATA_PATH  = Path(r"C:\Users\Administrator\baum\orders_simplified_sample.json")
+DATA_PATH  = Path(r"C:\Users\Administrator\baum\data\orders_simplified_sample.json")
 PLOT_DIR   = Path(r"C:\Users\Administrator\baum\model_plots")
 MODEL_DIR  = Path(r"C:\Users\Administrator\baum\models")
 PLOT_DIR.mkdir(parents=True, exist_ok=True)
@@ -448,6 +448,40 @@ print("\n  Best classifier per target:")
 for t, m in best_clf_type_per_target.items():
     f1 = val_clf_results[m][t]["F1"]
     print(f"    {t:<25} -> {m:<8}  F1={f1:.4f}")
+
+# ---- 4b. Logistic Regression standalone: Precision / Recall / Accuracy ----
+subsection("4b. Logistic Regression: Precision / Recall / Accuracy")
+
+def logreg_metrics(X, Y_bin, split_name):
+    """Compute precision, recall, accuracy for LogReg per target on a given split."""
+    rows = []
+    for t in OUTPUT_TARGETS:
+        y_true = Y_bin[t].values
+        y_prob  = get_proba(clf_models, X, t, "logreg")
+        thr     = best_thresholds["logreg"][t]
+        y_pred  = (y_prob >= thr).astype(int)
+        rows.append({
+            "target":    t,
+            "Precision": round(precision_score(y_true, y_pred, zero_division=0), 4),
+            "Recall":    round(recall_score(y_true, y_pred, zero_division=0), 4),
+            "Accuracy":  round(accuracy_score(y_true, y_pred), 4),
+            "Threshold": round(thr, 2),
+        })
+    df_out = pd.DataFrame(rows).set_index("target").sort_values("Recall", ascending=False)
+    print(f"\n  [Logistic Regression — {split_name}]")
+    print(df_out.to_string())
+    return df_out
+
+df_lr_val  = logreg_metrics(X_val,  Y_bin_val,  "Validation Set")
+df_lr_test = logreg_metrics(X_test, Y_bin_test, "Test Set")
+
+# Save combined table
+df_lr_val["split"]  = "val"
+df_lr_test["split"] = "test"
+pd.concat([df_lr_val, df_lr_test]).to_csv(
+    PLOT_DIR / "logreg_clf_metrics.csv"
+)
+print(f"  [saved] {PLOT_DIR / 'logreg_clf_metrics.csv'}")
 
 # ---- Plot: Val F1 comparison ----
 fig, ax = plt.subplots(figsize=(12, 6))
