@@ -25,7 +25,9 @@ This repository contains the code, models, and evaluation reports for the **Mult
 
 ## 🏗️ Project Architecture
 
-The solution uses a **Two-Stage Pipeline** to predict 14 distinct work steps (e.g., `bodyrepair`, `paintingSpraying`) and their corresponding durations in minutes from unstructured JSON order data.
+The solution uses a **Two-Stage Pipeline** to predict 14 distinct work steps (e.g., `bodyrepair`, `paintingSpraying`) and their corresponding durations in **hours** from unstructured JSON order data.
+
+> **Unit note:** Input position-level `totalTime` values in the raw JSON are in **minutes**. The output target values (per work step duration) are aggregated and stored in **hours**. All Stage 2 regression predictions are therefore in hours.
 
 ### 1. Feature Engineering
 - **Text Features**: Word n-grams (1-2) and Character n-grams (3-5) extracted from the concatenated `calculatedPositions` text via `TfidfVectorizer`.
@@ -38,7 +40,7 @@ Predicts binary occurrence (0 or 1) for each of the 14 targets.
 - **Tuning**: Decision thresholds are swept on the Validation set to maximize F1, rather than using a default 0.5 boundary.
 
 ### 3. Stage 2 — Conditional Regressors (Duration)
-Predicts the duration (in minutes) for each target, *conditional* on that target being predicted as active by Stage 1.
+Predicts the duration (in **hours**) for each target, *conditional* on that target being predicted as active by Stage 1.
 - **Models**: `Ridge` Regression and `LGBMRegressor`, trained exclusively on the positive subset for each target.
 
 ---

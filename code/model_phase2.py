@@ -8,7 +8,7 @@ Architecture:
   Stage 1 - Multi-label classifier (one per target): does work step occur?
   Stage 2 - Conditional regressor (one per target): how long does it take?
 
-All units: MINUTES (both input totalTime and output targets).
+Units: input position-level `totalTime` fields are in MINUTES; output regression targets (per work step duration) are in HOURS.
 
 Steps:
   1. Preprocessing
