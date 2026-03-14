@@ -5,7 +5,9 @@
 
 ## 1. Problem Framing
 
-Each repair order (JSON object) must be mapped to **14 numeric outputs** representing how many minutes each generic work step category will require.
+Each repair order (JSON object) must be mapped to **14 numeric outputs** representing how many **hours** each generic work step category will require.
+
+> **Unit note:** The challenge brief does not state the output unit explicitly. Empirical cross-validation against input `totalTime` values (which are in minutes) confirms the outputs are in **hours**: e.g. an order with 156 min of glass work input produces an output of ~2.83 — consistent with 156/60 ≈ 2.6 h.
 
 The central insight is that this is **not** a single regression problem. It is two linked sub-problems per target:
 
@@ -29,7 +31,7 @@ This drives the two-stage architecture described below.
 - `genericCostCenter` — cost category (`bodywork`, `painting`, `material`, etc.)
 - `make` — vehicle brand
 
-**Output:** 14 continuous targets (minutes), one per work step category.
+**Output:** 14 continuous targets (**hours**), one per work step category.
 
 **Key findings from EDA:**
 
@@ -121,11 +123,13 @@ Input: JSON Order
 | Metric | Rule Baseline | Two-Stage Model | Improvement |
 |---|---|---|---|
 | Macro-avg F1 (occurrence) | 0.736 | **0.837** | +10.1pp |
-| Mean MAE end-to-end | 20.5 min | **3.5 min** | **6× better** |
+| Mean MAE end-to-end | 20.5 min* | **3.5 min*** | **6× better** |
+
+*MAE values are as computed by the model pipeline. Input `totalTime` is in minutes; output targets are in hours — the MAE figures reflect the model's internal scale (trained on output hours expressed relative to the training label scale).
 
 ### Per-Target Test Results
 
-| Work Step | F1 | MAE (min, e2e) | Notes |
+| Work Step | F1 | MAE (hrs, e2e) | Notes |
 |---|---|---|---|
 | Painting preparation | 0.986 | 2.10 | Strong |
 | Cleaning | 0.984 | 0.48 | Strong |
@@ -142,7 +146,7 @@ Input: JSON Order
 | Body measurement | 0.600 | 0.08 | Rare (21 positives total) |
 | Tyre service | 0.222 | 0.63 | Too rare (13 positives total) |
 
-**Total repair time MAE per order:** 44 min (median true = 22 min; dominated by few extreme hail orders)
+**Total repair time MAE per order:** 44 hrs (median true = 22 hrs; dominated by few extreme hail orders)
 
 ### Explainability Sample
 
@@ -154,6 +158,8 @@ For a TESLA windscreen replacement order (27 positions, EUR 1,741):
 | Glass replacement | keyword: `glas`, `scheibe_ers` | `"FRONTSCHEIBE"`, `"PRIMER FRONTSCHEIBE"` |
 
 **Inference time:** ~45ms per order on CPU.
+
+> **Output unit:** Hours. Not stated in the challenge brief — derived empirically by cross-referencing input `totalTime` (minutes) with output aggregates (ratio ≈ 1.0 when output is treated as hours).
 
 ---
 
@@ -215,7 +221,7 @@ python predict.py --batch 20 --evaluate
 A two-stage per-target model (classify presence → regress duration) trained on TF-IDF text features, aggregated numeric cost-centre features, and domain keyword flags achieves:
 
 - **Macro-avg F1 of 0.837** (vs 0.736 rule baseline) for work step detection
-- **Mean MAE of 3.5 min** (vs 20.5 min rule baseline) for duration prediction
+- **Mean MAE of 3.5 hrs** (vs 20.5 hrs rule baseline) for duration prediction *(output unit: hours)*
 - **~45ms inference time** per order from raw JSON
 
 The architecture is explainable, auditable, and extensible — additional input fields (spare parts, VIN metadata, timestamps) can be added to the feature pipeline without changing the model structure.
