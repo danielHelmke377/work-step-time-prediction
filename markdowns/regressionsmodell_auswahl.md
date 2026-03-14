@@ -2,7 +2,7 @@
 
 ## Kontext
 
-In Stufe 2 des Zwei-Stufen-Modells wird für jede Zielgröße ein Regressionsmodell trainiert, das die **Dauer in Minuten** vorhersagt — allerdings **nur auf Aufträgen, bei denen der Arbeitsschritt tatsächlich vorkommt** (Zielwert > 0).
+In Stufe 2 des Zwei-Stufen-Modells wird für jede Zielgröße ein Regressionsmodell trainiert, das die **Dauer in Stunden** vorhersagt — allerdings **nur auf Aufträgen, bei denen der Arbeitsschritt tatsächlich vorkommt** (Zielwert > 0).
 
 ---
 
@@ -31,7 +31,7 @@ Würde man alle Aufträge inklusive der Nullen verwenden, würde das Modell lern
 
 ### 2. LightGBM Regressor
 
-**Was es ist:** Gradient-Boosting auf Entscheidungsbäumen für kontinuierliche Ausgaben (Minuten statt Ja/Nein).
+**Was es ist:** Gradient-Boosting auf Entscheidungsbäumen für kontinuierliche Ausgaben (Stunden statt Ja/Nein).
 
 **Warum getestet:**
 - **Nicht-lineare Zusammenhänge:** Die Dauer hängt oft nicht linear von den Features ab. Beispiel: Ab einer bestimmten Anzahl von Dellenpositionen steigt die `hailrepair`-Zeit überproportional — das kann ein lineares Modell nicht abbilden
@@ -48,26 +48,26 @@ Würde man alle Aufträge inklusive der Nullen verwenden, würde das Modell lern
 
 | Ziel | n pos. | Ridge MAE | LightGBM MAE | Gewinner |
 |---|---|---|---|---|
-| `calibration` | 23 | 1.88 min | **0.95 min** | LightGBM |
-| `wheelmeasurement` | 20 | 0.55 min | **0.51 min** | LightGBM |
-| `bodymeasurement` | 4 | 5.65 min | **0.46 min** | LightGBM |
-| `dismounting` | 90 | 1.18 min | **1.14 min** | LightGBM |
-| `bodyrepair` | 32 | **2.96 min** | 3.27 min | Ridge |
-| `assembly` | 86 | **1.41 min** | 1.43 min | Ridge |
-| `plasticrepair` | 24 | 1.13 min | **0.67 min** | LightGBM |
-| `cleaning` | 97 | 0.40 min | 0.40 min | Gleichstand |
-| `paintingPreparation` | 70 | **1.62 min** | 2.13 min | Ridge |
-| `paintingSpraying` | 69 | 0.73 min | **0.64 min** | LightGBM |
-| `paintingFinish` | 70 | **0.93 min** | 1.10 min | Ridge |
-| `glas` | 7 | 1.59 min | **0.89 min** | LightGBM |
-| `hailrepair` | 32 | **0.03 min** | 160.8 min | Ridge ⚠️ |
+| `calibration` | 23 | 1.88 hrs | **0.95 hrs** | LightGBM |
+| `wheelmeasurement` | 20 | 0.55 hrs | **0.51 hrs** | LightGBM |
+| `bodymeasurement` | 4 | 5.65 hrs | **0.46 hrs** | LightGBM |
+| `dismounting` | 90 | 1.18 hrs | **1.14 hrs** | LightGBM |
+| `bodyrepair` | 32 | **2.96 hrs** | 3.27 hrs | Ridge |
+| `assembly` | 86 | **1.41 hrs** | 1.43 hrs | Ridge |
+| `plasticrepair` | 24 | 1.13 hrs | **0.67 hrs** | LightGBM |
+| `cleaning` | 97 | 0.40 hrs | 0.40 hrs | Gleichstand |
+| `paintingPreparation` | 70 | **1.62 hrs** | 2.13 hrs | Ridge |
+| `paintingSpraying` | 69 | 0.73 hrs | **0.64 hrs** | LightGBM |
+| `paintingFinish` | 70 | **0.93 hrs** | 1.10 hrs | Ridge |
+| `glas` | 7 | 1.59 hrs | **0.89 hrs** | LightGBM |
+| `hailrepair` | 32 | **0.03 hrs** | 160.8 hrs | Ridge ⚠️ |
 
 ---
 
 ## Sonderfall: `hailrepair`
 
 Ridge schlägt LightGBM hier drastisch, weil:
-- Die Dauern extrem variieren (von ~100 bis 4.000 Minuten)
+- Die Dauern extrem variieren (von ~1.7 bis 67 Stunden) — entspricht ~100 bis 4.000 Minuten im Input
 - LightGBM auf dem kleinen Trainingsset bei so extremen Werten stark überangepasst ist
 - Ridge durch die starke Regularisierung stabiler bleibt
 

@@ -30,7 +30,7 @@ For each repair order, all position descriptions (`calculatedPositions[].text`) 
 For each matched target, the rule sums the `totalTime` of all positions whose text triggered the keyword match, then divides by a **conversion factor**:
 
 ```
-predicted_minutes = sum(matching position totalTime) / conversion_factor
+predicted_hours = sum(matching position totalTime) / conversion_factor
 ```
 
 Five conversion factors (1, 6, 10, 12, 60) were tested. **Factor = 60 produced the lowest MAE**, consistent with input times being in a unit roughly 60× the output unit.
@@ -42,7 +42,7 @@ Five conversion factors (1, 6, 10, 12, 60) were tested. **Factor = 60 produced t
 | Metric | Value |
 |---|---|
 | Overall F1 (occurrence) | 0.736 |
-| Overall MAE (end-to-end) | 20.5 min |
+| Overall MAE (end-to-end) | 20.5 hrs |
 | Conversion factor used | 60 |
 
 ### Per-target F1 (best → worst)
@@ -95,4 +95,4 @@ The two-stage ML model replaces the keyword-only approach with:
 - **Per-target thresholds** — tuned on validation data, not fixed at 0.5
 - **Conditional regression** — separate model per target trained only on positive examples
 
-Result: F1 rises from **0.736 → 0.837** and MAE drops from **20.5 → 3.5 min**.
+Result: F1 rises from **0.736 → 0.837** and MAE drops from **20.5 → 3.5 hrs**.
