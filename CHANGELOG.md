@@ -24,7 +24,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Baseline** freq-weighted F1: **0.9387** | freq-weighted Recall: **0.9460**
 - Combined (F1-opt) freq-weighted F1: **0.9283** | freq-weighted Recall: **0.9428**
 - Combined (RC ≥90%) freq-weighted Recall: **0.9491** (best of all variants)
+- **Optimal: Baseline CLF + Winsorise REG** → freq-weighted F1: **0.9294** | freq-weighted MAE: **1.87 hrs**
 - Freq-weighted MAE: **1.87 hrs** (vs 2.78 hrs baseline, −32.7%)
+- Classifiers and regressors are independent — no need to oversample; baseline CLF already
+  has the highest freq-weighted F1 (0.9387); winsorising is a pure regressor-stage change
 - Macro F1 (unweighted): 0.8153 — drops vs baseline because oversampling adds false
   positives on rare targets, which slightly reduces precision on **common** targets
 - The combined pipeline's primary gain is **MAE**, not classification — the baseline

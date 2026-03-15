@@ -208,42 +208,49 @@ Full analysis: `hailrepair_mae_exp/markdowns/mae_experiment_results.md` *(local 
 
 ## 🔬 Experiment: Combined Best Pipeline (`combined_best/`)
 
-Combines the best classifier strategy (oversampling + soft-vote + recall floor) with
-the best regressor strategy (winsorising at 95th percentile for high-skew targets):
+This experiment explores combining the best classifier and regressor strategies
+independently. Since Stage 1 (classifiers) and Stage 2 (regressors) are trained on
+separate subsets with separate objectives, they compose freely.
 
-| Stage | Configuration |
-|---|---|
-| Classifiers | Soft-vote (LogReg + LightGBM), oversampling to 200 positives per target |
-| Threshold strategies | F1-optimal and Recall-floor ≥ 90% |
-| Winsorised regressors | `assembly`, `calibration`, `hailrepair`, `paintingFinish` (all max/p95 ≥ 3) |
+**Regressor strategy:** winsorise training targets at the 95th percentile for all
+high-skew targets (max/p95 ≥ 3). Targets and their caps:
 
-**Key finding:** macro F1 drops slightly (oversampling boosts rare targets but adds false
-positives), but **frequency-weighted metrics** — which reflect actual business impact — are
-substantially better:
-
-| Metric | Baseline | **Combined (F1-opt)** | Combined (RC ≥90%) |
+| Target | p95 cap | max before | skew |
 |---|---|---|---|
-| Macro F1 | 0.8372 | 0.8153 | 0.7767 |
-| Macro Recall | 0.779 | 0.8445 | 0.9153 |
-| **Freq-weighted F1** | **0.9387** | 0.9283 | 0.9134 |
-| **Freq-weighted Recall** | 0.9460 | 0.9428 | **0.9491** |
-| Macro MAE (unweighted) | 3.51 hrs | 2.15 hrs | 2.23 hrs |
-| **Freq-weighted MAE** | 2.78 hrs | **1.87 hrs** | 1.91 hrs |
+| `hailrepair` | 1702.7 hrs | 4222.5 hrs | 2.85 |
+| `assembly` | 9.1 hrs | 28.7 hrs | 3.54 |
+| `paintingFinish` | 3.6 hrs | 14.3 hrs | 3.96 |
+| `calibration` | 4.8 hrs | 18.5 hrs | 4.94 |
 
-*Freq-weighted metrics weight each target by its occurrence rate — rare targets with
-few test examples count less, common targets like `cleaning` and `assembly` count more.*
+**Classifier strategies tested:** baseline (no oversampling), oversampled soft-vote
+(F1-optimal), and oversampled soft-vote (Recall-floor ≥ 90%).
 
-**Key nuance:** the baseline already achieves a high freq-weighted F1 (0.9387) and
-Recall (0.9460). Oversampling of rare minority targets in the combined pipeline pulls
-in false positives on the **common** targets, slightly reducing their precision and
-thus the freq-weighted F1. The RC strategy recovers freq-weighted Recall to 0.9491.
-The combined pipeline's clear advantage is on **freq-weighted MAE** (−32.7%),
-driven by the hailrepair and multi-target winsorising.
+| Metric | Baseline CLF | **Baseline CLF + Winsorise REG** ✅ | Oversample CLF + Winsorise REG |
+|---|---|---|---|
+| Macro F1 | 0.8372 | 0.8099 | 0.8153 |
+| Macro Recall | 0.779 | 0.8637 | 0.8445 |
+| **Freq-weighted F1** | **0.9387** | **0.9294** | 0.9283 |
+| **Freq-weighted Recall** | 0.9460 | 0.9348 | 0.9428 |
+| Macro MAE | 3.51 hrs | 2.14 hrs | 2.15 hrs |
+| **Freq-weighted MAE** | 2.78 hrs | **1.87 hrs** | **1.87 hrs** |
 
-Recommendation: use **RC strategy** when missing a common work step is costly (under-quoting
-risk); use **F1-optimal** for best overall classification accuracy.
+*Freq-weighted metrics weight each target by its test-set occurrence rate.*
+
+**Key insight:** since classifiers and regressors are independently trained, the
+optimal setup is simply **baseline classifiers + winsorised regressors**:
+- The baseline classifiers already achieve the highest freq-weighted F1 (0.9387) — oversampling
+  of rare targets adds false positives on the *common* high-frequency targets, reducing their
+  precision and pulling freq-weighted F1 down to 0.9283
+- The winsorised regressors reduce freq-weighted MAE by **−32.7%** regardless of
+  which classifiers are used — the MAE gain comes entirely from the regressor stage
+
+**Recommendation:** apply the 4-target 95th-percentile winsorise to `model_phase2.py`
+as a one-parameter change. No classifier retraining needed. The RC (Recall-floor ≥ 90%)
+oversampled variant is only worth considering if minimising missed work steps
+(under-quoting risk) is more important than precision.
 
 Full analysis: `combined_best/markdowns/combined_best_results.md` *(local only, not pushed)*
+
 
 
 
