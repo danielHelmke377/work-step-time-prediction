@@ -132,7 +132,7 @@ pytest tests/ -v
 |---|---|---|
 | Stage 1 (Classifiers) | Macro F1 | **0.914** |
 | Stage 1 (Classifiers) | Macro Recall | **0.779** |
-| Stage 2 (Regressors) | Macro MAE | **~1.2 hrs** |
+| Stage 2 (Regressors) | Macro MAE | **3.5 hrs** (vs 20.5 hrs rule baseline — 6× lower) |
 
 See [`markdowns/assessment_writeup.md`](markdowns/assessment_writeup.md) for full per-target breakdowns.
 

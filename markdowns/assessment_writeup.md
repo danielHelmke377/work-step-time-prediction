@@ -123,9 +123,9 @@ Input: JSON Order
 | Metric | Rule Baseline | Two-Stage Model | Improvement |
 |---|---|---|---|
 | Macro-avg F1 (occurrence) | 0.736 | **0.837** | +10.1pp |
-| Mean MAE end-to-end | 20.5 min* | **3.5 min*** | **6× better** |
+| Mean MAE end-to-end (hrs) | 20.5 hrs | **3.5 hrs** | **6× lower** |
 
-*MAE values are as computed by the model pipeline. Input `totalTime` is in minutes; output targets are in hours — the MAE figures reflect the model's internal scale (trained on output hours expressed relative to the training label scale).
+> **Unit note:** All MAE figures are in **hours** — the unit of the output targets. Input `totalTime` values in the raw JSON are in minutes.
 
 ### Per-Target Test Results
 
@@ -221,7 +221,7 @@ python predict.py --batch 20 --evaluate
 A two-stage per-target model (classify presence → regress duration) trained on TF-IDF text features, aggregated numeric cost-centre features, and domain keyword flags achieves:
 
 - **Macro-avg F1 of 0.837** (vs 0.736 rule baseline) for work step detection
-- **Mean MAE of 3.5 hrs** (vs 20.5 hrs rule baseline) for duration prediction *(output unit: hours)*
+- **Mean MAE of 3.5 hrs** (vs 20.5 hrs rule baseline) for duration prediction — all output units are **hours**
 - **~45ms inference time** per order from raw JSON
 
 The architecture is explainable, auditable, and extensible — additional input fields (spare parts, VIN metadata, timestamps) can be added to the feature pipeline without changing the model structure.
