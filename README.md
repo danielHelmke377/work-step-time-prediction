@@ -204,4 +204,39 @@ near-zero true durations in some test records, making the macro MAPE (~513%) uni
 
 Full analysis: `hailrepair_mae_exp/markdowns/mae_experiment_results.md` *(local only, not pushed)*
 
+---
+
+## 🔬 Experiment: Combined Best Pipeline (`combined_best/`)
+
+Combines the best classifier strategy (oversampling + soft-vote + recall floor) with
+the best regressor strategy (winsorising at 95th percentile for high-skew targets):
+
+| Stage | Configuration |
+|---|---|
+| Classifiers | Soft-vote (LogReg + LightGBM), oversampling to 200 positives per target |
+| Threshold strategies | F1-optimal and Recall-floor ≥ 90% |
+| Winsorised regressors | `assembly`, `calibration`, `hailrepair`, `paintingFinish` (all max/p95 ≥ 3) |
+
+**Key finding:** macro F1 drops slightly (oversampling boosts rare targets but adds false
+positives), but **frequency-weighted metrics** — which reflect actual business impact — are
+substantially better:
+
+| Metric | Baseline | **Combined (F1-opt)** | Combined (RC ≥90%) |
+|---|---|---|---|
+| Macro F1 | 0.8372 | 0.8153 | 0.7767 |
+| Macro Recall | 0.779 | 0.8445 | 0.9153 |
+| **Freq-weighted F1** | — | **0.9283** | 0.9134 |
+| **Freq-weighted Recall** | — | **0.9428** | **0.9491** |
+| Macro MAE (unweighted) | 3.51 hrs | 2.15 hrs | 2.23 hrs |
+| **Freq-weighted MAE** | 2.78 hrs | **1.87 hrs** | 1.91 hrs |
+
+*Freq-weighted metrics weight each target by its occurrence rate — rare targets with
+few test examples count less, common targets like `cleaning` and `assembly` count more.*
+
+Recommendation: use **RC strategy** when missing a common work step is costly (under-quoting
+risk); use **F1-optimal** for best overall classification accuracy.
+
+Full analysis: `combined_best/markdowns/combined_best_results.md` *(local only, not pushed)*
+
+
 

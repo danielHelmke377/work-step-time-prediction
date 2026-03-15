@@ -5,6 +5,29 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.5.0] — 2026-03-15 — Combined Best Pipeline
+
+### Added
+- `combined_best/` *(local only)* — combined classifier + regressor experiment
+  - `combined_best/code/model_combined_best.py` — full pipeline: oversampled soft-vote
+    classifiers + F1-opt/recall-floor thresholds + multi-target winsorised regressors
+  - `combined_best/markdowns/combined_best_results.md`
+- Distribution analysis across all 14 regression targets (skewness, max/p95 ratios)
+- Added `combined_best` experiment section to `README.md`
+
+### Changed
+- Extended winsorising to 4 high-skew targets (max/p95 ≥ 3): `hailrepair`, `assembly`,
+  `calibration`, `paintingFinish`
+- Introduced frequency-weighted F1 and Recall as primary evaluation metrics
+
+### Results
+- Freq-weighted F1 (F1-opt): **0.9283** | Freq-weighted Recall (RC): **0.9491**
+- Freq-weighted MAE: **1.87 hrs** (vs 2.78 hrs baseline, −32.7%)
+- Macro F1 (unweighted): 0.8153 — drops vs baseline due to oversampling adding false
+  positives on rare targets; freq-weighted view is more representative of real usage
+
+---
+
 ## [1.4.0] — 2026-03-15 — hailrepair Regression Experiments
 
 ### Added
