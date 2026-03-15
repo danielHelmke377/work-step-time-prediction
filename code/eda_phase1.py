@@ -36,8 +36,9 @@ from scipy import stats
 warnings.filterwarnings("ignore")
 
 # ── Global Config ────────────────────────────────────────────────────────────
-DATA_PATH   = Path(r"C:\Users\Administrator\baum\orders_simplified_sample.json")
-PLOT_DIR    = Path(r"C:\Users\Administrator\baum\eda_plots")
+ROOT        = Path(__file__).resolve().parent.parent  # repo root
+DATA_PATH   = ROOT / "data" / "orders_simplified_sample.json"
+PLOT_DIR    = ROOT / "eda_plots"
 PLOT_DIR.mkdir(parents=True, exist_ok=True)
 
 OUTPUT_TARGETS = [

@@ -60,9 +60,10 @@ except ImportError:
 warnings.filterwarnings("ignore")
 
 # ── Config ───────────────────────────────────────────────────────────────────
-DATA_PATH  = Path(r"C:\Users\Administrator\baum\data\orders_simplified_sample.json")
-PLOT_DIR   = Path(r"C:\Users\Administrator\baum\model_plots")
-MODEL_DIR  = Path(r"C:\Users\Administrator\baum\models")
+ROOT       = Path(__file__).resolve().parent.parent  # repo root
+DATA_PATH  = ROOT / "data" / "orders_simplified_sample.json"
+PLOT_DIR   = ROOT / "model_plots"
+MODEL_DIR  = ROOT / "models"
 PLOT_DIR.mkdir(parents=True, exist_ok=True)
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 

@@ -36,11 +36,11 @@ except ImportError:
 warnings.filterwarnings("ignore")
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-BASE      = Path(r"C:\Users\Administrator\baum")
-DATA_PATH = BASE / "data" / "orders_simplified_sample.json"
-MODEL_DIR = BASE / "models"
-PLOT_DIR  = BASE / "model_plots"
-MD_DIR    = BASE / "markdowns"
+ROOT      = Path(__file__).resolve().parent.parent  # repo root
+DATA_PATH = ROOT / "data" / "orders_simplified_sample.json"
+MODEL_DIR = ROOT / "models"
+PLOT_DIR  = ROOT / "model_plots"
+MD_DIR    = ROOT / "markdowns"
 
 PLOT_DIR.mkdir(parents=True, exist_ok=True)
 MD_DIR.mkdir(parents=True, exist_ok=True)

@@ -34,8 +34,9 @@ from scipy import sparse
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 # ── Paths ────────────────────────────────────────────────────────────────────
-DATA_PATH    = Path(r"C:\Users\Administrator\baum\orders_simplified_sample.json")
-PIPELINE_PATH = Path(r"C:\Users\Administrator\baum\models\two_stage_pipeline.pkl")
+ROOT          = Path(__file__).resolve().parent.parent  # repo root
+DATA_PATH     = ROOT / "data" / "orders_simplified_sample.json"
+PIPELINE_PATH = ROOT / "models" / "two_stage_pipeline.pkl"
 
 # ── Domain keyword patterns (mirrored from model_phase2.py) ──────────────────
 KEYWORD_FLAGS = {

@@ -79,3 +79,18 @@ All technical reasoning, baseline comparisons, and business-context explanations
 
 - [Assessment Writeup (`assessment_writeup.md`)](markdowns/assessment_writeup.md) — Architecture, rule-based baseline comparison, and final results.
 - [Optimisation Summary (`optimisation_summary_report.md`)](markdowns/optimisation_summary_report.md) — Post-submission experiments on soft-voting, recall-constraints, and SMOTE/Oversampling.
+
+---
+
+## 🧠 Experiment: German BERT Feature Upgrade (`gbert_base/`)
+
+A follow-up experiment replacing the TF-IDF bag-of-words text representation with frozen contextual embeddings from [`deepset/gbert-base`](https://huggingface.co/deepset/gbert-base) — a German BERT model (110M params). The rest of the two-stage architecture is unchanged.
+
+| Document | Description |
+|---|---|
+| [gbert_base/README.md](gbert_base/README.md) | Quickstart, folder structure, and motivation |
+| [gbert_evaluation_results.md](gbert_base/markdowns/gbert_evaluation_results.md) | Full results: per-target metrics, macro averages, interpretation, recommendations |
+| [gbert_model_card.md](gbert_base/markdowns/gbert_model_card.md) | Model card: architecture, features, inference pipeline, limitations |
+| [gbert_setup_guide.md](gbert_base/markdowns/gbert_setup_guide.md) | Setup instructions, run commands, troubleshooting |
+
+**Key result:** Macro Recall improves from **0.779 → 0.781** (+0.2 pp) on the test set. Gains are modest but consistent — expected for frozen embeddings at this data scale (491 orders). Full fine-tuning is recommended once ≥ 3,000 labelled orders are available.

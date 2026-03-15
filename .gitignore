@@ -1,17 +1,49 @@
-﻿# Große Datendatei
-orders_simplified_sample.json
+# ── Data ──────────────────────────────────────────────────────────────────────
+# Raw data belongs in cloud storage / DVC — not committed to git
+data/
+*.json
 
-# Temporäre Ausgabedateien
-eda_output.txt
-model_output.txt
-predict_demo_out.txt
-predict_batch_out.txt
+# ── Generated artefacts (reproducible from code) ──────────────────────────────
+model_plots/
+eda_plots/
+gbert_base/model_plots/
+*.npy
 
-# Python Cache
+# ── Trained model pickles (use model registry or GitHub Release assets) ────────
+models/*.pkl
+gbert_base/models/*.pkl
+
+# ── Python ────────────────────────────────────────────────────────────────────
 __pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
 
-# Virtual Environment
+# ── Virtual environments ───────────────────────────────────────────────────────
+.venv/
 venv/
+env/
+ENV/
+
+# ── IDE / Editor ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Temporary script outputs ───────────────────────────────────────────────────
+text/*.txt
+
+# ── Environment config ────────────────────────────────────────────────────────
 .env
+.env.local
