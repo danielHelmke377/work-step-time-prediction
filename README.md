@@ -222,34 +222,36 @@ high-skew targets (max/p95 ≥ 3). Targets and their caps:
 | `paintingFinish` | 3.6 hrs | 14.3 hrs | 3.96 |
 | `calibration` | 4.8 hrs | 18.5 hrs | 4.94 |
 
-**Classifier strategies tested:** baseline (no oversampling), oversampled soft-vote
+**Classifier strategies tested:** baseline pickle (frozen, no retraining), oversampled soft-vote
 (F1-optimal), and oversampled soft-vote (Recall-floor ≥ 90%).
 
-| Metric | Baseline CLF | **Baseline CLF + Winsorise REG** ✅ | Oversample CLF + Winsorise REG |
+| Metric | Baseline | **True Optimal** ✅ | Oversample CLF + Winsorise REG |
 |---|---|---|---|
-| Macro F1 | 0.8372 | 0.8099 | 0.8153 |
-| Macro Recall | 0.779 | 0.8637 | 0.8445 |
-| **Freq-weighted F1** | **0.9387** | **0.9294** | 0.9283 |
-| **Freq-weighted Recall** | 0.9460 | 0.9348 | 0.9428 |
-| Macro MAE | 3.51 hrs | 2.14 hrs | 2.15 hrs |
-| **Freq-weighted MAE** | 2.78 hrs | **1.87 hrs** | **1.87 hrs** |
+| Macro F1 | 0.8372 | **0.8372** (identical) | 0.8153 |
+| Macro Recall | 0.779 | 0.8594 | 0.8445 |
+| **Freq-weighted F1** | **0.9387** | **0.9347** | 0.9283 |
+| **Freq-weighted Recall** | 0.9460 | 0.9412 | 0.9428 |
+| Macro MAE | 3.51 hrs | **2.14 hrs** | 2.15 hrs |
+| **Freq-weighted MAE** | 2.78 hrs | **1.88 hrs** | 1.87 hrs |
 
 *Freq-weighted metrics weight each target by its test-set occurrence rate.*
 
 **Key insight:** since classifiers and regressors are independently trained, the
-optimal setup is simply **baseline classifiers + winsorised regressors**:
-- The baseline classifiers already achieve the highest freq-weighted F1 (0.9387) — oversampling
-  of rare targets adds false positives on the *common* high-frequency targets, reducing their
-  precision and pulling freq-weighted F1 down to 0.9283
-- The winsorised regressors reduce freq-weighted MAE by **−32.7%** regardless of
-  which classifiers are used — the MAE gain comes entirely from the regressor stage
+optimal setup is **frozen baseline classifiers + winsorised regressors** —
+`model_true_optimal.py` implements exactly this:
+- Macro F1 is **identical to the baseline** (0.8372) — the classifiers are loaded from
+  the pickle unchanged, with the original F1-tuned thresholds per target
+- Freq-weighted MAE drops by **−32.4%** (2.78 → 1.88 hrs) from the regressor-only change
+- No oversampling, no re-training of classifiers — a single-parameter change to
+  the regressor stage of `model_phase2.py`
 
 **Recommendation:** apply the 4-target 95th-percentile winsorise to `model_phase2.py`
-as a one-parameter change. No classifier retraining needed. The RC (Recall-floor ≥ 90%)
-oversampled variant is only worth considering if minimising missed work steps
-(under-quoting risk) is more important than precision.
+as a one-parameter change. See `combined_best/code/model_true_optimal.py` for the
+exact implementation. The RC (Recall-floor ≥ 90%) oversampled variant is only worth
+considering if minimising missed work steps (under-quoting risk) outweighs precision.
 
-Full analysis: `combined_best/markdowns/combined_best_results.md` *(local only, not pushed)*
+Full analysis: `combined_best/markdowns/true_optimal_results.md` *(local only, not pushed)*
+
 
 
 
