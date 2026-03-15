@@ -242,12 +242,12 @@ def predict_order(record, pipeline, verbose=True):
         predictions[t] = {
             "prob":               round(float(prob), 4),
             "active":             bool(active),
-            "predicted_minutes":  round(duration, 2),
+            "predicted_hours":   round(duration, 2),
             "threshold":          round(thr, 2),
         }
 
     active_targets         = [t for t in targets if predictions[t]["active"]]
-    total_predicted_minutes = sum(predictions[t]["predicted_minutes"] for t in targets)
+    total_predicted_hours  = sum(predictions[t]["predicted_hours"] for t in targets)
     elapsed_ms             = (time.perf_counter() - t0) * 1000
 
     return {
@@ -257,7 +257,7 @@ def predict_order(record, pipeline, verbose=True):
         "total_input_price_eur":  round(feats["total_price"], 2),
         "predictions":            predictions,
         "active_targets":         active_targets,
-        "total_predicted_minutes": round(total_predicted_minutes, 2),
+        "total_predicted_hours":  round(total_predicted_hours, 2),
         "elapsed_ms":             round(elapsed_ms, 1),
         "_feats":                 feats,   # for internal use only
         "_text":                  text,
@@ -320,8 +320,8 @@ def print_report(result, explanations=None, true_output=None):
     print(f"  Total input cost: EUR {result['total_input_price_eur']:,.2f}")
     print(f"  Inference time  : {result['elapsed_ms']:.1f} ms")
 
-    print(f"\n  {'TARGET':<30} {'ACTIVE':>7} {'PROB':>7} {'PRED(min)':>10}"
-          + ("  TRUE(min)" if true_output else ""))
+    print(f"\n  {'TARGET':<30} {'ACTIVE':>7} {'PROB':>7} {'PRED(hrs)':>10}"
+          + ("  TRUE(hrs)" if true_output else ""))
     print("  " + "-" * (60 + (10 if true_output else 0)))
 
     targets = result["predictions"]
@@ -330,8 +330,8 @@ def print_report(result, explanations=None, true_output=None):
         label  = TARGET_LABELS.get(t, t)
         active = "YES" if p["active"] else "---"
         prob   = f"{p['prob']:.2f}"
-        mins   = f"{p['predicted_minutes']:.2f}" if p["active"] else "   0.00"
-        line   = f"  {label:<30} {active:>7} {prob:>7} {mins:>10}"
+        hrs   = f"{p['predicted_hours']:.2f}" if p["active"] else "   0.00"
+        line   = f"  {label:<30} {active:>7} {prob:>7} {hrs:>10}"
         if true_output is not None:
             true_val = true_output.get(t, 0) or 0
             true_str = f"{float(true_val):>9.2f}"
@@ -339,15 +339,13 @@ def print_report(result, explanations=None, true_output=None):
             line    += f"  {true_str}{correct}"
         print(line)
 
-    print(f"\n  Total predicted repair time: {result['total_predicted_minutes']:.2f} min"
-          f"  ({result['total_predicted_minutes']/60:.2f} hrs)")
+    print(f"\n  Total predicted repair time: {result['total_predicted_hours']:.2f} hrs")
 
     if true_output is not None:
         true_total = sum(float(v or 0) for v in true_output.values())
-        error      = abs(result["total_predicted_minutes"] - true_total)
-        print(f"  True total repair time     : {true_total:.2f} min"
-              f"  ({true_total/60:.2f} hrs)")
-        print(f"  Total time error           : {error:.2f} min")
+        error      = abs(result["total_predicted_hours"] - true_total)
+        print(f"  True total repair time     : {true_total:.2f} hrs")
+        print(f"  Total time error           : {error:.2f} hrs")
 
     if explanations:
         print(f"\n  EXPLANATION - Why each work step was predicted:")

@@ -726,7 +726,7 @@ axes[0].xaxis.set_major_formatter(mtick.FormatStrFormatter("%.2f"))
 sorted_by_mae = tdf.sort_values("MAE_e2e", ascending=False)
 axes[1].barh(sorted_by_mae.index, sorted_by_mae["MAE_e2e"].clip(upper=300),
              color=COLORS[1], alpha=0.85)
-axes[1].set_xlabel("MAE end-to-end (minutes, clipped at 300)")
+axes[1].set_xlabel("MAE end-to-end (hours, clipped at 300)")
 axes[1].set_title("Test MAE per Target")
 plt.tight_layout()
 save_fig("17_test_metrics")
