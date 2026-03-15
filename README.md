@@ -188,14 +188,20 @@ across 6 variants (individually and combined):
 contains a single 4222-hr record (likely a data error) that dominates the entire fit.
 Removing it via the 95th-percentile cap halves the error:
 
-| Variant | `hailrepair` MAE | Mean MAE (14 targets) |
-|---|---|---|
-| Baseline | 39.60 hrs | 3.51 hrs |
-| A only (MAE objective) | 27.11 hrs | 2.62 hrs |
-| **C only (winsorise)** | **20.51 hrs** ✅ | **2.15 hrs** |
-| A + C | 25.17 hrs | 2.48 hrs |
+| Variant | `hailrepair` MAE | Mean MAE (14) | **Freq-weighted MAE** |
+|---|---|---|---|
+| Baseline | 39.60 hrs | 3.51 hrs | 2.78 hrs |
+| A only (MAE objective) | 27.11 hrs | 2.62 hrs | — |
+| **C only (winsorise)** | **20.51 hrs** ✅ | **2.15 hrs** | **1.90 hrs** |
+| A + C | 25.17 hrs | 2.48 hrs | — |
 
 F1 scores are **unchanged** across all variants — classifiers are not affected.
 
+**On metrics:** Frequency-weighted MAE (weighted by how often each target appears in real
+orders) is the most business-relevant metric — it drops to **1.90 hrs** with C_only.
+MAPE was also evaluated but is unsuitable here: `bodyrepair` hits MAPE of 6255% due to
+near-zero true durations in some test records, making the macro MAPE (~513%) uninformative.
+
 Full analysis: `hailrepair_mae_exp/markdowns/mae_experiment_results.md` *(local only, not pushed)*
+
 
