@@ -21,10 +21,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Introduced frequency-weighted F1 and Recall as primary evaluation metrics
 
 ### Results
-- Freq-weighted F1 (F1-opt): **0.9283** | Freq-weighted Recall (RC): **0.9491**
+- **Baseline** freq-weighted F1: **0.9387** | freq-weighted Recall: **0.9460**
+- Combined (F1-opt) freq-weighted F1: **0.9283** | freq-weighted Recall: **0.9428**
+- Combined (RC ≥90%) freq-weighted Recall: **0.9491** (best of all variants)
 - Freq-weighted MAE: **1.87 hrs** (vs 2.78 hrs baseline, −32.7%)
-- Macro F1 (unweighted): 0.8153 — drops vs baseline due to oversampling adding false
-  positives on rare targets; freq-weighted view is more representative of real usage
+- Macro F1 (unweighted): 0.8153 — drops vs baseline because oversampling adds false
+  positives on rare targets, which slightly reduces precision on **common** targets
+- The combined pipeline's primary gain is **MAE**, not classification — the baseline
+  already has strong freq-weighted F1 (0.9387) on the common work steps
 
 ---
 

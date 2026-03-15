@@ -225,13 +225,20 @@ substantially better:
 |---|---|---|---|
 | Macro F1 | 0.8372 | 0.8153 | 0.7767 |
 | Macro Recall | 0.779 | 0.8445 | 0.9153 |
-| **Freq-weighted F1** | — | **0.9283** | 0.9134 |
-| **Freq-weighted Recall** | — | **0.9428** | **0.9491** |
+| **Freq-weighted F1** | **0.9387** | 0.9283 | 0.9134 |
+| **Freq-weighted Recall** | 0.9460 | 0.9428 | **0.9491** |
 | Macro MAE (unweighted) | 3.51 hrs | 2.15 hrs | 2.23 hrs |
 | **Freq-weighted MAE** | 2.78 hrs | **1.87 hrs** | 1.91 hrs |
 
 *Freq-weighted metrics weight each target by its occurrence rate — rare targets with
 few test examples count less, common targets like `cleaning` and `assembly` count more.*
+
+**Key nuance:** the baseline already achieves a high freq-weighted F1 (0.9387) and
+Recall (0.9460). Oversampling of rare minority targets in the combined pipeline pulls
+in false positives on the **common** targets, slightly reducing their precision and
+thus the freq-weighted F1. The RC strategy recovers freq-weighted Recall to 0.9491.
+The combined pipeline's clear advantage is on **freq-weighted MAE** (−32.7%),
+driven by the hailrepair and multi-target winsorising.
 
 Recommendation: use **RC strategy** when missing a common work step is costly (under-quoting
 risk); use **F1-optimal** for best overall classification accuracy.
