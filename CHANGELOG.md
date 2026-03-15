@@ -5,6 +5,34 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.4.0] — 2026-03-15 — hailrepair Regression Experiments
+
+### Added
+- `log_transform/` *(local only)* — log1p transform experiment for `hailrepair` regressor
+  - `log_transform/code/model_log_transform.py`
+  - `log_transform/markdowns/log_transform_results.md`
+- `hailrepair_mae_exp/` *(local only)* — three-strategy MAE reduction experiment for `hailrepair`
+  - `hailrepair_mae_exp/code/model_mae_experiment.py` — tests 6 variants (baseline, A, B, C, A+C, A+B+C)
+  - `hailrepair_mae_exp/markdowns/mae_experiment_results.md`
+- Added two experiment sections to `README.md`
+
+### Changed
+- `README.md` — updated results section and added experiment summaries
+- Corrected MAE unit label in `model_phase2.py` plot (minutes → hours)
+
+### Results — Log-Transform (negative)
+- `np.log1p()` transform degraded `hailrepair` MAE: **39.60 → 48.05 hrs (+21.3%)**
+- Root cause: `expm1()` amplifies log-space errors exponentially; insufficient at n=29
+
+### Results — MAE Reduction Experiment (positive)
+- Best variant: **winsorise at 95th percentile** (Strategy C)
+- `hailrepair` MAE: **39.60 → 20.51 hrs (−48.2%)**
+- Mean MAE all 14 targets: **3.51 → 2.15 hrs (−38.7%)**
+- F1 scores unchanged (classifiers not modified)
+- Root cause of baseline error: single 4222-hr training record (likely data error) dominated fit
+
+---
+
 ## [1.3.0] — 2026-03-15 — Repo Professionalisation
 
 ### Added

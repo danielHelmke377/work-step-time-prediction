@@ -150,3 +150,52 @@ A follow-up experiment replacing TF-IDF with frozen contextual embeddings from [
 | [gbert_setup_guide.md](gbert_base/markdowns/gbert_setup_guide.md) | Setup instructions, run commands, troubleshooting |
 
 **Key result:** Macro Recall improves from **0.779 → 0.781** (+0.2 pp). Gains are modest but consistent — expected for frozen embeddings at this data scale. Full fine-tuning is recommended once ≥ 3,000 labelled orders are available.
+
+---
+
+## 🔬 Experiment: Log-Transform for `hailrepair` (`log_transform/`)
+
+Hypothesis: applying `np.log1p()` to the `hailrepair` regression target at training time
+and `np.expm1()` at prediction time would compress its extreme skew and reduce MAE.
+
+**Result: negative.** MAE increased from **39.60 → 48.05 hrs (+21.3%)**.
+
+Root cause: with only **29 positive training examples**, the `expm1()` inverse transform
+amplifies log-space prediction errors exponentially. A log-space error of 1.0 maps to a
+~2.7× larger error in hours — outweighing any benefit of scale compression.
+
+| Metric | Baseline | Log-Transform |
+|---|---|---|
+| `hailrepair` MAE | 39.60 hrs | 48.05 hrs ❌ |
+| Mean MAE (14 targets) | 3.51 hrs | 4.12 hrs |
+
+Full analysis: `log_transform/markdowns/log_transform_results.md` *(local only, not pushed)*
+
+---
+
+## 🔬 Experiment: `hailrepair` MAE Reduction (`hailrepair_mae_exp/`)
+
+Three targeted strategies were tested on the heavily skewed `hailrepair` regressor
+across 6 variants (individually and combined):
+
+| Strategy | Description |
+|---|---|
+| **A** | `LGBMRegressor(objective="regression_l1")` — optimises MAE directly |
+| **B** | Median fallback instead of mean when n_pos < 5 |
+| **C** | Winsorise training targets at 95th percentile |
+
+**Key finding:** winsorising alone (**C**) is the most effective. The training data
+contains a single 4222-hr record (likely a data error) that dominates the entire fit.
+Removing it via the 95th-percentile cap halves the error:
+
+| Variant | `hailrepair` MAE | Mean MAE (14 targets) |
+|---|---|---|
+| Baseline | 39.60 hrs | 3.51 hrs |
+| A only (MAE objective) | 27.11 hrs | 2.62 hrs |
+| **C only (winsorise)** | **20.51 hrs** ✅ | **2.15 hrs** |
+| A + C | 25.17 hrs | 2.48 hrs |
+
+F1 scores are **unchanged** across all variants — classifiers are not affected.
+
+Full analysis: `hailrepair_mae_exp/markdowns/mae_experiment_results.md` *(local only, not pushed)*
+
