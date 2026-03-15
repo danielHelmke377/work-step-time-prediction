@@ -225,14 +225,21 @@ high-skew targets (max/p95 ≥ 3). Targets and their caps:
 **Classifier strategies tested:** baseline pickle (frozen, no retraining), oversampled soft-vote
 (F1-optimal), and oversampled soft-vote (Recall-floor ≥ 90%).
 
-| Metric | Baseline | **True Optimal** ✅ | Oversample CLF + Winsorise REG |
+| Metric | Baseline¹ | **True Optimal** ✅ | Oversample CLF + Winsorise REG |
 |---|---|---|---|
 | Macro F1 | 0.8372 | **0.8372** (identical) | 0.8153 |
-| Macro Recall | 0.779 | 0.8594 | 0.8445 |
+| Macro Recall | 0.779¹ | 0.8594¹ | 0.8445 |
 | **Freq-weighted F1** | **0.9387** | **0.9347** | 0.9283 |
 | **Freq-weighted Recall** | 0.9460 | 0.9412 | 0.9428 |
 | Macro MAE | 3.51 hrs | **2.14 hrs** | 2.15 hrs |
 | **Freq-weighted MAE** | 2.78 hrs | **1.88 hrs** | 1.87 hrs |
+
+*¹ Macro Recall difference (0.779 vs 0.8594) is a **comparison artefact**: the baseline
+0.779 was reported by the original `model_phase2.py` run on a different test split.
+When the same saved classifiers are re-evaluated on the consistent experiment split used
+here, they also score ~0.86 — the classifiers are identical and produce the same binary
+predictions. The meaningful comparisons are F1, freq-weighted F1, and freq-weighted MAE.*
+
 
 *Freq-weighted metrics weight each target by its test-set occurrence rate.*
 
