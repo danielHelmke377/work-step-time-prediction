@@ -134,7 +134,7 @@ if missing_target_keys:
     for k, v in missing_target_keys.items():
         print(f"    {k}: {v} records missing")
 else:
-    print(f"\n  ✓ All 14 output targets present in every record")
+    print(f"\n  [OK] All 14 output targets present in every record")
 
 # Build clean DataFrame of records that have both input and output
 valid   = [r for r in raw if "input" in r and "output" in r
@@ -235,7 +235,9 @@ subsection("2c. Target Co-Occurrence")
 
 binary = (df_targets > 0).astype(int)
 cooc   = binary.T.dot(binary)
-np.fill_diagonal(cooc.values, 0)  # zero diagonal for readability
+cooc_arr = cooc.values.copy()  # .copy() needed — pandas returns read-only view
+np.fill_diagonal(cooc_arr, 0)
+cooc = pd.DataFrame(cooc_arr, index=cooc.index, columns=cooc.columns)
 
 fig, ax = plt.subplots(figsize=(12, 10))
 mask = np.zeros_like(cooc, dtype=bool)
