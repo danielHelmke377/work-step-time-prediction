@@ -5,7 +5,25 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.6.0] — 2026-03-16 — Best-Per-Target Regressor
+
+### Added
+- `combined_best/code/model_best_per_target_reg.py` — uses saved baseline classifiers
+  plus the per-target best regressor from `regressor_selection.md` (LightGBM or Ridge).
+  For `hailrepair`, plain Ridge vs Ridge+winsorise is selected by validation MAE.
+- `combined_best/markdowns/best_per_target_reg_results.md`
+
+### Results
+- Freq-weighted MAE: **0.96 hrs** (vs 1.88 hrs true optimal, −48.9%)
+- Macro F1: **0.8372** (unchanged — classifiers untouched)
+- Freq-weighted F1: **0.9347** (unchanged)
+- Freq-weighted Accuracy: **0.9433**
+- `hailrepair`: plain Ridge chosen (val MAE 0.03 vs 79.74 hrs for winsorised variant)
+
+---
+
 ## [1.5.0] — 2026-03-15 — Combined Best Pipeline
+
 
 ### Added
 - `combined_best/` *(local only)* — combined classifier + regressor experiment

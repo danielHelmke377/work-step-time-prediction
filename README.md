@@ -259,6 +259,36 @@ considering if minimising missed work steps (under-quoting risk) outweighs preci
 
 Full analysis: `combined_best/markdowns/true_optimal_results.md` *(local only, not pushed)*
 
+---
+
+## 🔬 Experiment: Best-Per-Target Regressor (`combined_best/`)
+
+Extends the true optimal setup by using the **best-performing regressor per target**
+(LightGBM or Ridge, as benchmarked in `markdowns/regressor_selection.md`) instead of
+LightGBM uniformly. For `hailrepair`, the choice between plain Ridge and Ridge+winsorise
+is made automatically by comparing validation MAE.
+
+| Stage | Configuration |
+|---|---|
+| Classifiers | Saved baseline from pickle — unchanged |
+| Regressors | Per-target winner: LightGBM for 8 targets, Ridge for 5, fallback for 1 |
+| `hailrepair` | Plain Ridge (val MAE 0.03 hrs vs 79.74 hrs for winsorised) |
+
+| Metric | True Optimal | **Best-per-target REG** | Delta |
+|---|---|---|---|
+| Macro F1 | 0.8372 | **0.8372** | ±0 |
+| Freq-weighted F1 | 0.9347 | **0.9347** | ±0 |
+| Freq-weighted Accuracy | — | **0.9433** | — |
+| Macro MAE | 2.14 hrs | **0.70 hrs** | −1.44 hrs |
+| **Freq-weighted MAE** | 1.88 hrs | **0.96 hrs** | **−0.92 hrs** |
+
+Classification is **unchanged** (classifiers untouched). The dramatic MAE reduction comes
+from Ridge outperforming LightGBM on several targets with small training sets
+(`bodyrepair`, `assembly`, `paintingPreparation`, `paintingFinish`, `hailrepair`).
+
+Full analysis: `combined_best/markdowns/best_per_target_reg_results.md` *(local only, not pushed)*
+
+
 
 
 
