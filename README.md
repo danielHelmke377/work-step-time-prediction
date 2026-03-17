@@ -51,7 +51,7 @@ flowchart TD
 > [!NOTE]
 > **Data Privacy & Reproducibility:** Due to customer confidentiality and NDA restrictions, the proprietary JSON repair order dataset used to train the original model is **not** included in this public repository. 
 > 
-> However, to ensure **full reproducibility** of the pipeline, this repository includes a synthetic data generator. The pipeline will automatically generate and fall back to the synthetic dataset if the proprietary data is missing, allowing you to run the training and inference scripts identically to the production version.
+> This repository provides **full pipeline reproducibility on synthetic data**, while the original business results remain non-reproducible due to NDA-restricted source data. The pipeline will automatically generate and fall back to the synthetic dataset if the proprietary data is missing, allowing you to run the training and inference scripts identically to the production version.
 
 ### Quick Start: Running the Pipeline
 

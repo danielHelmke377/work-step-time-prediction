@@ -1,6 +1,6 @@
 # Project Evolution: Work Step Time Prediction
 
-This document details the development history of the Work Step Time Prediction model, from its initial genesis as a 4-hour assessment prototype to its highly optimized final state.
+This document details the development history of the Work Step Time Prediction model, from its initial genesis as a 4-hour assessment prototype to its optimized final state.
 
 ## 🏆 Assessment vs. Final Optimized State
 
@@ -34,7 +34,7 @@ To provide a clear distinction between what was completed during the timed asses
 
 ## 🧪 Post-Submission Optimizations
 
-*The following experiments and iterative improvements were developed post-submission to push the architecture to a production-ready state.*
+*The following experiments and iterative improvements were developed post-submission to push the architecture to a more deployment-minded, production-oriented state.*
 
 ---
 
@@ -143,7 +143,7 @@ Extends the true optimal setup by using the **best-performing regressor per targ
 
 ## 🔬 Experiment: Final Optimized Pipeline (LightGBM Classifiers)
 
-Extends the best-per-target regressor setup by standardizing on **LightGBM** uniformly for all 14 Stage 1 classifiers (chosen due to its robust performance and to simplify the final pipeline architecture), with thresholds chosen by validation F1. No oversampling is used.
+Extends the best-per-target regressor setup by standardizing on **LightGBM** uniformly for all 14 Stage 1 classifiers. While a fully mixed LogReg/LGBM ensemble technically scored *marginally* higher on some macro metrics, standardizing on LightGBM was chosen because performance is nearly identical on the business-weighted metrics, while architectural complexity is significantly lower. Thresholds are optimized by validation F1, and no oversampling is used.
 
 | Metric | Baseline | Best-per-REG | **Final Pipeline** | Delta vs BestReg |
 |---|---|---|---|---|
@@ -153,4 +153,4 @@ Extends the best-per-target regressor setup by standardizing on **LightGBM** uni
 | Macro MAE | 3.51 hrs | 0.70 hrs | **0.70 hrs** | ±0 |
 | **Freq-weighted MAE** | 2.78 hrs | **0.96 hrs** | **0.96 hrs** | ±0 |
 
-The MAE stays the same (regressor selection is identical). Standardizing on LightGBM produces virtually identical frequency-weighted metrics to a fully mixed LogReg/LGBM approach, drastically reducing system complexity. This configuration forms the right-side of the comparison table and the basis of the current `scripts/train.py` core pipeline.
+The MAE stays the same (regressor selection is identical). As shown, standardizing on LightGBM produces virtually identical frequency-weighted metrics to a fully mixed approach. Accepting a slight trade-off in absolute macro F1 to drastically reduce system complexity is a deliberate, deployment-minded design choice. This configuration forms the right-side of the comparison table and the basis of the current `scripts/train.py` core pipeline.
