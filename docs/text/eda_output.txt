@@ -1,0 +1,331 @@
+﻿
+======================================================================
+  STEP 1 ÔÇö Load & Structural Validation
+======================================================================
+
+  Total records: 491
+  File size    : 4.98 MB
+
+  Schema Completeness:
+    Missing 'input'              : 0
+    Missing 'output'             : 0
+    Missing 'calculatedPositions': 0
+    Missing 'make'               : 0
+
+  Ô£ô All 14 output targets present in every record
+
+  Valid records (both input + output): 491
+
+======================================================================
+  STEP 2 ÔÇö Target Variable Analysis
+======================================================================
+
+  ÔöÇÔöÇ 2a. Sparsity per Target ÔöÇÔöÇ
+
+  Target                      # Zero  # Active   % Zero
+  ------------------------------------------------------
+  allTiresService                478        13   97.4%  |||||||||||||||||||
+  bodymeasurement                470        21   95.7%  |||||||||||||||||||
+  glas                           453        38   92.3%  ||||||||||||||||||
+  plasticrepair                  385       106   78.4%  |||||||||||||||
+  wheelmeasurement               381       110   77.6%  |||||||||||||||
+  calibration                    355       136   72.3%  ||||||||||||||
+  hailrepair                     341       150   69.5%  |||||||||||||
+  bodyrepair                     335       156   68.2%  |||||||||||||
+  paintingPreparation            142       349   28.9%  |||||
+  paintingSpraying               141       350   28.7%  |||||
+  paintingFinish                 137       354   27.9%  |||||
+  dismounting                     68       423   13.8%  ||
+  assembly                        54       437   11.0%  ||
+  cleaning                        20       471    4.1%  
+  [saved] C:\Users\Administrator\baum\eda_plots\01_target_sparsity.png
+
+  ÔöÇÔöÇ 2b. Non-Zero Target Distributions ÔöÇÔöÇ
+
+                     count     mean   median      std       max   skew    kurt
+calibration          136.0    1.515    0.854    2.200    18.528  5.059  32.791
+wheelmeasurement     110.0    0.917    0.819    0.641     3.585  1.388   3.108
+bodymeasurement       21.0    1.274    0.943    1.278     6.132  3.025  10.859
+dismounting          423.0    2.534    1.905    2.278    17.708  2.994  12.734
+bodyrepair           156.0    5.431    3.108    6.685    40.411  2.827   9.276
+assembly             437.0    3.633    2.771    3.538    34.716  4.124  25.541
+plasticrepair        106.0    1.981    1.918    1.071     6.606  0.882   2.266
+allTiresService       13.0    4.472    3.814    3.770    12.071  0.900   0.120
+cleaning             471.0    1.292    1.226    0.553     5.765  1.974  11.308
+paintingPreparation  349.0    7.572    6.147    6.414    54.254  2.506  11.469
+paintingSpraying     350.0    2.160    1.812    1.286     7.004  1.100   1.024
+paintingFinish       354.0    1.457    1.006    1.698    17.790  4.567  33.742
+hailrepair           150.0  884.953  850.200  507.935  4222.500  2.195  11.743
+glas                  38.0    2.609    2.764    0.986     4.958 -0.434   1.038
+  [saved] C:\Users\Administrator\baum\eda_plots\02_target_distributions.png
+
+  ÔöÇÔöÇ 2c. Target Co-Occurrence ÔöÇÔöÇ
+  [saved] C:\Users\Administrator\baum\eda_plots\03_target_cooccurrence.png
+
+  ÔöÇÔöÇ 2d. Repair Complexity ÔÇö Active Targets per Order ÔöÇÔöÇ
+
+  Active work steps per order:
+    Mean   : 6.34
+    Median : 7.0
+    Max    : 12
+    Min    : 0
+
+  Distribution of active step counts:
+0       1
+1       9
+2      30
+3      40
+4      58
+5      17
+6      32
+7     132
+8      90
+9      58
+10     15
+11      8
+12      1
+  [saved] C:\Users\Administrator\baum\eda_plots\04_active_targets_per_order.png
+
+  ÔöÇÔöÇ 2e. Total Predicted Time per Order ÔöÇÔöÇ
+
+  Total predicted time (sum of all targets) per order:
+    Mean   : 288.13 hrs
+    Median : 22.42 hrs
+    Max    : 4259.98 hrs
+    Min    : 0.00 hrs
+  [saved] C:\Users\Administrator\baum\eda_plots\05_total_predicted_time.png
+
+======================================================================
+  STEP 3 ÔÇö Input Field Quality Audit
+======================================================================
+
+  Total positions (all orders combined): 27,109
+
+  ÔöÇÔöÇ 3a. Make / Brand Distribution ÔöÇÔöÇ
+
+  Top makes:
+VOLKSWAGEN       85
+MERCEDES-BENZ    73
+unknown          38
+BMW              33
+FORD             32
+SKODA            29
+AUDI             29
+OPEL             24
+TESLA            20
+MAZDA            16
+SEAT             14
+DACIA            13
+HYUNDAI          12
+FIAT             10
+TOYOTA            9
+KIA               8
+PEUGEOT           7
+RENAULT           7
+MINI              6
+PORSCHE           5
+
+  Unknown / null makes : 38
+  [saved] C:\Users\Administrator\baum\eda_plots\06_make_distribution.png
+
+  ÔöÇÔöÇ 3b. Positions per Order ÔöÇÔöÇ
+
+  Positions per order:
+    Mean   : 55.2
+    Median : 50
+    Min    : 1
+    Max    : 244
+  [saved] C:\Users\Administrator\baum\eda_plots\07_positions_per_order.png
+
+  ÔöÇÔöÇ 3c. Position Type Breakdown ÔöÇÔöÇ
+
+  Position breakdown:
+    Empty text rows              : 1,742  (6.4%)
+    Header/separator rows (0,0) : 3,850  (14.2%)
+    Rows with price or time > 0 : 21,429  (79.0%)
+    Null genericCostCenter       : 1,162  (4.3%)
+
+  ÔöÇÔöÇ 3d. Cost Center Distribution ÔöÇÔöÇ
+
+genericCostCenter
+bodywork         9768
+material         5852
+painting         4575
+hail             2944
+others           1504
+paintmaterial    1304
+None             1162
+  [saved] C:\Users\Administrator\baum\eda_plots\08_cost_center_distribution.png
+
+  ÔöÇÔöÇ 3e. Text Quality ÔöÇÔöÇ
+
+  Text encoding check (useful positions only, n=21,429):
+    Records with real Umlauts (├ñ/├Â/├╝/├ƒ): 474  (2.2%)
+    Records with AE/OE/UE/SS substitute : 0  (0.0%)
+
+  Text length (characters, non-empty useful positions):
+    Mean   : 43.1
+    Median : 33.0
+    Max    : 861
+
+  Total unique tokens: 2,811
+
+  Top 30 tokens:
+    a+e                             5,665
+    r                               5,479
+    v                               5,348
+    l                               4,515
+    h                               4,176
+    umfasst                         1,588
+    stossfaenger                    1,504
+    zuschlag                        1,435
+    dellen                          1,399
+    mm                              1,398
+    1                               1,358
+    groesse                         1,356
+    verbundarbeit                   1,305
+    lackstufe                       1,304
+    ausgebaut                       1,239
+    und                             1,172
+    30                              1,164
+    vorbereitung                    1,155
+    tuer                            1,142
+    abdeckung                       1,063
+    a                               1,059
+    20                              1,036
+    klebetechnik                      999
+    oberflaechenlackierung            950
+    anzahl                            908
+    stossf                            899
+    fuer                              880
+    ers                               863
+    teil                              794
+    2                                 792
+  [saved] C:\Users\Administrator\baum\eda_plots\09_top_tokens.png
+
+======================================================================
+  STEP 4 ÔÇö Numeric Consistency & Unit Verification
+======================================================================
+
+  ÔöÇÔöÇ 4a. Price Distribution (non-zero positions) ÔöÇÔöÇ
+
+  totalPrice (non-zero, n=20,863):
+    Mean   : 115.18
+    Median : 53.15
+    Max    : 4142.00
+    Min    : 0.0900
+    Negative prices : 88
+
+  ÔöÇÔöÇ 4b. Input Time Distribution (non-zero positions) ÔöÇÔöÇ
+
+  totalTime (non-zero, n=15,227):
+    Mean   : 48.73
+    Median : 24.00
+    Max    : 1608.00
+    Min    : 0.6000
+
+  NOTE: typical AW=5 minutes ÔåÆ divide by 12 to get hours
+        typical AW=6 minutes ÔåÆ divide by 10 to get hours
+        If values like 300 = 5h ÔåÆ 1AW = 1 minute ÔåÆ divide by 60
+
+  ÔöÇÔöÇ 4c. Implied Unit Conversion: Input Time vs Output Target ÔöÇÔöÇ
+  bodywork ÔåÆ dismounting: n= 419  median_ratio=0.0037  (if input=min ÔåÆ output_unit factorÔëê270.0 min/hr)
+  bodywork ÔåÆ assembly: n= 431  median_ratio=0.0053  (if input=min ÔåÆ output_unit factorÔëê187.4 min/hr)
+  bodywork ÔåÆ bodyrepair: n= 156  median_ratio=0.0040  (if input=min ÔåÆ output_unit factorÔëê251.4 min/hr)
+  bodywork ÔåÆ bodymeasurement: n=  21  median_ratio=0.0007  (if input=min ÔåÆ output_unit factorÔëê1482.9 min/hr)
+  bodywork ÔåÆ wheelmeasurement: n= 110  median_ratio=0.0010  (if input=min ÔåÆ output_unit factorÔëê1023.3 min/hr)
+  bodywork ÔåÆ calibration: n= 136  median_ratio=0.0014  (if input=min ÔåÆ output_unit factorÔëê721.6 min/hr)
+  bodywork ÔåÆ cleaning: n= 464  median_ratio=0.0027  (if input=min ÔåÆ output_unit factorÔëê375.9 min/hr)
+  painting ÔåÆ paintingPreparation: n= 347  median_ratio=0.0148  (if input=min ÔåÆ output_unit factorÔëê67.5 min/hr)
+  painting ÔåÆ paintingSpraying: n= 349  median_ratio=0.0044  (if input=min ÔåÆ output_unit factorÔëê228.0 min/hr)
+  painting ÔåÆ paintingFinish: n= 346  median_ratio=0.0025  (if input=min ÔåÆ output_unit factorÔëê404.9 min/hr)
+  [saved] C:\Users\Administrator\baum\eda_plots\10_price_vs_time_by_cc.png
+
+  ÔöÇÔöÇ 4d. Input Painting Time vs Output Painting Targets ÔöÇÔöÇ
+  [saved] C:\Users\Administrator\baum\eda_plots\11_painting_input_vs_output.png
+
+======================================================================
+  STEP 5 ÔÇö Feature Engineering Candidate Assessment
+======================================================================
+
+  ÔöÇÔöÇ 5a. Input Feature ├ù Output Target Correlation ÔöÇÔöÇ
+  [saved] C:\Users\Administrator\baum\eda_plots\12_feature_target_correlation.png
+
+  ÔöÇÔöÇ 5b. Make vs Key Targets ÔöÇÔöÇ
+  [saved] C:\Users\Administrator\baum\eda_plots\13_make_vs_targets.png
+
+======================================================================
+  STEP 6 ÔÇö Rule-Based Baseline
+======================================================================
+
+  ÔöÇÔöÇ 6a. Conversion Factor Grid Search ÔöÇÔöÇ
+
+  Grid search over conversion factors:
+
+ conversion_factor     MAE     RMSE  F1_occurrence  Precision  Recall
+                 6 27.6108 116.9731         0.7361      0.748  0.7245
+                10 24.2760 128.4046         0.7361      0.748  0.7245
+                12 23.4604 131.7397         0.7361      0.748  0.7245
+                60 20.5466 146.5991         0.7361      0.748  0.7245
+                 1 93.4915 261.6415         0.7361      0.748  0.7245
+
+  Ôÿà Best conversion factor (lowest MAE): 60
+
+  ÔöÇÔöÇ 6b. Per-Target Baseline Scores (factor=60) ÔöÇÔöÇ
+
+                          MAE  F1_occurrence
+hailrepair           263.1514         0.9833
+paintingSpraying       4.7770         0.9829
+cleaning               1.2582         0.9760
+dismounting            4.0450         0.9446
+plasticrepair          0.3581         0.7692
+bodyrepair             1.4585         0.7661
+paintingPreparation    4.7741         0.7270
+wheelmeasurement       0.2374         0.5093
+calibration            2.6967         0.4862
+assembly               2.9692         0.4712
+paintingFinish         1.0406         0.3650
+bodymeasurement        0.0484         0.3077
+glas                   0.6143         0.2969
+allTiresService        0.2238         0.2466
+  [saved] C:\Users\Administrator\baum\eda_plots\14_baseline_scores.png
+
+  Ôÿà Rule baseline establishes floor ÔÇö ML must beat these scores.
+
+======================================================================
+  STEP 7 ÔÇö Summary & Open Questions
+======================================================================
+
+  +-------------------------------------------------------------------+
+  |  DATASET SUMMARY                                                |
+  +-------------------------------------------------------------------+
+  |  Records          :      491                                  |
+  |  Valid records    :      491                                  |
+  |  Output targets   : 14 (multi-target regression + classification)|
+  |  Avg positions/order      :  55.2                         |
+  |  Avg active targets/order :  6.34                         |
+  |  Most sparse target  : allTiresService      (97.4% zero)   |
+  |  Least sparse target : cleaning             (4.1% zero)   |
+  +-------------------------------------------------------------------+
+
+  KEY FINDINGS:
+  ------------
+  1. All 14 targets are sparse ÔÇö two-stage model (classify ÔåÆ regress) is justified.
+  2. co-occurrence analysis reveals natural repair clusters (painting / bodywork / glass).
+  3. Text is German technical abbreviations ÔÇö TF-IDF with char n-grams recommended.
+  4. Rule baseline shows keyword coverage ÔÇö F1 scores reveal which targets are easiest.
+  5. Unit conversion factor MUST be confirmed ÔÇö grid search gives best empirical estimate.
+  6. 'make' varies widely including 'unknown' ÔÇö needs robust encoding strategy.
+
+  OPEN QUESTIONS FOR STAKEHOLDERS:
+  ---------------------------------
+  1. Unit of input totalTime? (minutes / AW / hours)
+  2. Unit of output targets? (hours assumed ÔÇö confirm)
+  3. Full dataset size? (affects TF-IDF vs. transformer embedding decision)
+  4. Additional fields available? (spare parts, VIN, timestamps, workshop ID)
+  5. Is 'make == unknown' fixable upstream, or must model handle it?
+  6. Evaluation priority: occurrence F1 vs. duration MAE vs. total time error?
+  7. Is output schema fixed (exactly 14 targets), or can new categories appear?
+
+  All plots saved to: C:\Users\Administrator\baum\eda_plots
+

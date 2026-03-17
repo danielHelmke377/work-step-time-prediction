@@ -1,0 +1,362 @@
+﻿python : C:\Users\Admin
+istrator\AppData\Local\
+Python\pythoncore-3.14-
+64\Lib\site-packages\sk
+learn\utils\validation.
+py:2691: UserWarning: 
+X does not have valid 
+feature names, but 
+LGBMClassifier was 
+fitted with feature 
+names
+In Zeile:1 Zeichen:92
++ ...  -Encoding utf8; 
+python predict.py 
+--batch 10 --evaluate 
+2>&1 | Out-F ...
++                      
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (C:\Users\Admi   
+ ni...h feature nam    
+es:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMRegressor was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMClassifier was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMRegressor was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMClassifier was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMRegressor was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMClassifier was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMRegressor was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMClassifier was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMRegressor was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMClassifier was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMRegressor was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMClassifier was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMRegressor was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMClassifier was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMRegressor was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMClassifier was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMRegressor was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMClassifier was 
+fitted with feature 
+names
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMRegressor was 
+fitted with feature 
+names
+  warnings.warn(
+
+====================================================================
+  Repair Order Inference Engine
+====================================================================
+  Loading pipeline from: C:\Users\Administrator\baum\models\two_stage_pipeline.pkl
+  Pipeline loaded. Targets: 14
+
+====================================================================
+  BATCH PREDICTION SUMMARY  (10 orders)
+====================================================================
+  #    Make                 Items Pred Steps Pred Total(min)  True Total(min)  Error(min)
+  --------------------------------------------------------------------------------------
+  0    MAZDA                   46          6          653.32           641.68       11.64
+  1    OPEL                    81          7           17.39            17.21        0.18
+  2    VOLKSWAGEN              55          4          878.70           993.99      115.29
+  3    MERCEDES-BENZ           35          7           14.60            12.27        2.33
+  4    VOLKSWAGEN              53          8           16.16            16.03        0.13
+  5    MERCEDES-BENZ           23          4            4.37             2.83        1.54
+  6    PORSCHE                 17          3            4.89             4.90        0.01
+  7    NISSAN                  68          7         1155.51          1138.88       16.63
+  8    PEUGEOT                 27          4            9.08             3.93        5.15
+  9    HONDA                   89          7         1058.23          1053.25        4.98
+
+  Mean absolute error (total time): 15.79 min
+  Median absolute error           : 3.66 min
+  Max absolute error              : 115.29 min
+
+====================================================================
+
+  Detailed report for first batch record (index 41):
+
+====================================================================
+  REPAIR ORDER PREDICTION REPORT
+====================================================================
+  Make            : MAZDA
+  Line items      : 46
+  Total input time: 1434.2 min
+  Total input cost: EUR 3,230.59
+  Inference time  : 52.3 ms
+
+  TARGET                          ACTIVE    PROB  PRED(min)  TRUE(min)
+  ----------------------------------------------------------------------
+  Calibration (ADAS/cameras)         ---    0.00       0.00       0.00
+  Wheel alignment measurement        ---    0.00       0.00       0.00
+  Body/chassis measurement           ---    0.00       0.00       0.00
+  Dis-/mounting                      YES    0.15       1.16       0.00  <-- MISS
+  Body repair                        ---    0.00       0.00       0.00
+  Assembly                           YES    1.00       0.73       0.81
+  Plastic repair                     ---    0.00       0.00       0.00
+  Tyre service                       ---    0.00       0.00       0.00
+  Cleaning                           YES    1.00       1.58       1.58
+  Painting ù preparation             ---    0.00       0.00       0.00
+  Painting ù spraying                ---    0.00       0.00       0.00
+  Painting ù finish                  YES    1.00       0.20       0.13
+  Hail repair                        YES    1.00     648.59     638.10
+  Glass replacement                  YES    1.00       1.06       1.06
+
+  Total predicted repair time: 653.32 min  (10.89 hrs)
+  True total repair time     : 641.68 min  (10.69 hrs)
+  Total time error           : 11.64 min
+
+  EXPLANATION - Why each work step was predicted:
+  ------------------------------------------------------------
+
+  [Dis-/mounting]
+    Keywords matched : montage
+    Position text    : "MOTORHAUBE A+E"
+    Position text    : "MOTORHAUBENISOLIERUNG A+E"
+    Position text    : "MATERIAL UND ERSATZTEILE:"
+
+  [Assembly]
+    Keywords matched : montage
+    Position text    : "MOTORHAUBE A+E"
+    Position text    : "MOTORHAUBENISOLIERUNG A+E"
+    Position text    : "MATERIAL UND ERSATZTEILE:"
+
+  [Cleaning]
+    Keywords matched : reinigung
+    Position text    : "FAHRZEUGREINIGUNG"
+
+  [Painting ù finish]
+    Keywords matched : klebetechnik
+    Position text    : "ZUSCHLAG KLEBETECHNIK 30%"
+    Position text    : "HAGELSCHADENREPARATUR: MATERIAL FUER KLEBETECHNIK (5 TEILE)"
+
+  [Hail repair]
+    Keywords matched : hagel, dellen
+    Position text    : "HAGELSCHADENREPARATUR:
+METHODE "HAGELSCHADENZENTRUM / BVAT""
+    Position text    : "DACH (AUSSENHAUT)
+(GROESSE: 20 MM) (80 DELLEN)"
+    Position text    : "DACHRAHMEN SEITLICH L.
+(GROESSE: 10 MM) (59 DELLEN)"
+
+  [Glass replacement]
+    Keywords matched : glas, scheibe_ers
+    Position text    : "HECKKLAPPE OBH. INST. (OBERHALB SCHEIBE)
+(GROESSE: 10 MM) (25 DELLEN)"
+    Position text    : "HECKKLAPPE UTH. INST. (UNTERHALB SCHEIBE)
+(GROESSE: 20 MM) (5 DELLEN)"
+    Position text    : "SEITENSCHEIBE H.L."
+
+====================================================================
+

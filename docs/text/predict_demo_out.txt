@@ -1,0 +1,106 @@
+﻿python : C:\Users\Admin
+istrator\AppData\Local\
+Python\pythoncore-3.14-
+64\Lib\site-packages\sk
+learn\utils\validation.
+py:2691: UserWarning: 
+X does not have valid 
+feature names, but 
+LGBMClassifier was 
+fitted with feature 
+names
+In Zeile:1 Zeichen:1
++ python predict.py 
+--demo 2 --evaluate 
+2>&1 | Out-File 
+predict_demo_ou ...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (C:\Users\Admi   
+ ni...h feature nam    
+es:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+  warnings.warn(
+C:\Users\Administrator\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sklearn\uti
+ls\validation.py:2691: 
+UserWarning: X does 
+not have valid feature 
+names, but 
+LGBMRegressor was 
+fitted with feature 
+names
+  warnings.warn(
+
+====================================================================
+  Repair Order Inference Engine
+====================================================================
+  Loading pipeline from: C:\Users\Administrator\baum\models\two_stage_pipeline.pkl
+  Pipeline loaded. Targets: 14
+  Demo record index: 2 / 490
+
+====================================================================
+  REPAIR ORDER PREDICTION REPORT
+====================================================================
+  Make            : TESLA
+  Line items      : 27
+  Total input time: 303.6 min
+  Total input cost: EUR 1,741.11
+  Inference time  : 44.3 ms
+
+  TARGET                          ACTIVE    PROB  PRED(min)  TRUE(min)
+  ----------------------------------------------------------------------
+  Calibration (ADAS/cameras)         ---    0.00       0.00       0.00
+  Wheel alignment measurement        ---    0.00       0.00       0.00
+  Body/chassis measurement           ---    0.00       0.00       0.00
+  Dis-/mounting                      YES    0.19       2.75       0.00  <-- MISS
+  Body repair                        ---    0.00       0.00       0.00
+  Assembly                           ---    0.00       0.00       0.00
+  Plastic repair                     ---    0.00       0.00       0.00
+  Tyre service                       ---    0.00       0.00       0.00
+  Cleaning                           YES    1.00       1.74       1.70
+  Painting ù preparation             ---    0.00       0.00       0.00
+  Painting ù spraying                ---    0.00       0.00       0.00
+  Painting ù finish                  ---    0.00       0.00       0.00
+  Hail repair                        ---    0.00       0.00       0.00
+  Glass replacement                  YES    1.00       2.83       2.83
+
+  Total predicted repair time: 7.32 min  (0.12 hrs)
+  True total repair time     : 4.53 min  (0.08 hrs)
+  Total time error           : 2.79 min
+
+  EXPLANATION - Why each work step was predicted:
+  ------------------------------------------------------------
+
+  [Dis-/mounting]
+    Keywords matched : montage
+    Position text    : "VERKLEIDUNG KOFFERRAUM V AUS-/EINBAUEN"
+    Position text    : "FRONTSCHEIBE ERSETZEN
+UMFASST: GRILL WINDLAUF,
+WISCHERGESTAENGE, WISCHERARME,
+ZI"
+    Position text    : "MATERIAL UND ERSATZTEILE:"
+
+  [Cleaning]
+    Keywords matched : reinigung
+    Position text    : "FAHRZEUGREINIGUNG"
+
+  [Glass replacement]
+    Keywords matched : glas, scheibe_ers
+    Position text    : "FRONTSCHEIBE ERSETZEN
+UMFASST: GRILL WINDLAUF,
+WISCHERGESTAENGE, WISCHERARME,
+ZI"
+    Position text    : "FRONTSCHEIBE"
+    Position text    : "PRIMER FRONTSCHEIBE"
+
+====================================================================
+

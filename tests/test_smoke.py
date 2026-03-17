@@ -51,10 +51,13 @@ class TestCorePipeline:
 
     def test_classifiers_present(self, pipeline):
         assert "clf_models" in pipeline
-        for model_type in pipeline["clf_models"]:
-            for t in EXPECTED_TARGETS:
-                assert t in pipeline["clf_models"][model_type], \
-                    f"Missing classifier for target='{t}' model_type='{model_type}'"
+        assert "best_clf_per_target" in pipeline
+        best_clf = pipeline["best_clf_per_target"]
+        for t in EXPECTED_TARGETS:
+            ctype = best_clf.get(t)
+            assert ctype is not None, f"Missing best_clf_per_target for {t}"
+            assert t in pipeline["clf_models"][ctype], \
+                f"Missing classifier for target='{t}' model_type='{ctype}'"
 
     def test_regressors_present(self, pipeline):
         assert "reg_models" in pipeline

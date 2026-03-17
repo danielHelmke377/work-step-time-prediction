@@ -5,7 +5,40 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [2.0.0] — 2026-03-17 — Portfolio Ready Restructure
+
+### Added
+- `pyproject.toml` — modern dependency management, replacing `requirements.txt`.
+- `Makefile` — standardized pipeline execution (`make setup`, `make train`, `make predict`, `make test`).
+- `RepairOrderTrainer` class in `scripts/train.py` for encapsulated training orchestration.
+- `RepairOrderPredictor` class in `scripts/predict.py` for reusable inference.
+- `RepairOrderEDA` class in `scripts/eda.py` for stateful exploratory data analysis.
+
+### Changed
+- Centralized configuration and feature extraction into a core `src/repair_order/` package, achieving strict DRY compliance.
+- Restructured root directory: moved exploratory model scripts to `experiments/`, docs to `docs/`, and core logic to `scripts/`.
+- Overhauled `README.md` to prioritize "Time to Value," emphasizing business impact and final results.
+
+---
+
+## [1.7.0] — 2026-03-16 — Fully Mixed Pipeline
+
+### Added
+- `combined_best/code/model_fully_mixed.py` — best-per-target classifier (LogReg vs
+  LightGBM by val F1, no oversampling) + best-per-target regressor (same as v1.6.0)
+- `combined_best/markdowns/fully_mixed_results.md`
+
+### Results
+- Freq-weighted MAE: **0.96 hrs** (same as v1.6.0, regressor stage unchanged)
+- Macro F1: **0.8381** (+0.0009 vs v1.6.0 — classifier mixing provides marginal gain)
+- Freq-weighted F1: **0.9348** | Freq-weighted Accuracy: **0.9434**
+- Classifier choices: LogReg wins for `dismounting`, `allTiresService`, `cleaning`,
+  `paintingSpraying`; LightGBM wins the remaining 10 targets
+
+---
+
 ## [1.6.0] — 2026-03-16 — Best-Per-Target Regressor
+
 
 ### Added
 - `combined_best/code/model_best_per_target_reg.py` — uses saved baseline classifiers

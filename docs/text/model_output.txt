@@ -1,0 +1,289 @@
+﻿
+======================================================================
+  STEP 1 - Load & Preprocess
+======================================================================
+
+  Records loaded: 491
+
+======================================================================
+  STEP 2 - Feature Engineering
+======================================================================
+
+  Building order-level features...
+  Numeric/keyword/make features: 65
+  Fitting TF-IDF word n-grams (1-2)...
+  Fitting TF-IDF char n-grams (3-5)...
+  Final feature matrix: 491 records x 3065 features
+    - Word TF-IDF : 2000
+    - Char TF-IDF : 1000
+    - Numeric/kw  : 65
+
+======================================================================
+  STEP 3 - Train / Val / Test Split
+======================================================================
+
+  Train : 294 records
+  Val   :  98 records
+  Test  :  99 records
+
+  Complexity distribution (train):
+0      1
+1      8
+2     15
+3     24
+4     35
+5      9
+6     20
+7     78
+8     59
+9     31
+10     8
+11     5
+12     1
+
+======================================================================
+  STEP 4 - Stage 1: Multi-Label Classification
+======================================================================
+
+  Training classifiers on train set...
+
+  -- 4a. Per-Target Threshold Tuning on Validation Set --
+
+  [LOGREG] Val Classification Results:
+                     threshold      F1  Precision  Recall      AP
+cleaning                  0.05  1.0000     1.0000  1.0000  1.0000
+paintingSpraying          0.05  0.9855     0.9855  0.9855  0.9838
+hailrepair                0.20  0.9846     0.9697  1.0000  1.0000
+paintingFinish            0.41  0.9790     0.9589  1.0000  0.9846
+dismounting               0.10  0.9778     0.9778  0.9778  0.9854
+paintingPreparation       0.06  0.9714     0.9714  0.9714  0.9976
+assembly                  0.94  0.9480     0.9425  0.9535  0.9783
+bodyrepair                0.82  0.7719     0.8800  0.6875  0.7703
+calibration               0.56  0.6667     0.6400  0.6957  0.6021
+wheelmeasurement          0.62  0.5957     0.5185  0.7000  0.4399
+plasticrepair             0.33  0.5926     0.4211  1.0000  0.5341
+glas                      0.91  0.4706     0.4000  0.5714  0.3150
+bodymeasurement           0.95  0.2222     0.2000  0.2500  0.1090
+allTiresService           0.45  0.2222     0.1250  1.0000  0.1250
+
+  [LGBM] Val Classification Results:
+                     threshold      F1  Precision  Recall      AP
+hailrepair                0.05  1.0000     1.0000  1.0000  1.0000
+cleaning                  0.05  0.9948     1.0000  0.9897  1.0000
+paintingPreparation       0.05  0.9859     0.9722  1.0000  0.9980
+paintingFinish            0.59  0.9859     0.9722  1.0000  0.9722
+paintingSpraying          0.05  0.9787     0.9583  1.0000  0.9983
+assembly                  0.95  0.9651     0.9651  0.9651  0.9941
+dismounting               0.05  0.9609     0.9663  0.9556  0.9794
+glas                      0.55  0.9231     1.0000  0.8571  0.9286
+bodyrepair                0.05  0.8750     0.8750  0.8750  0.9463
+plasticrepair             0.57  0.8511     0.8696  0.8333  0.9429
+wheelmeasurement          0.09  0.8372     0.7826  0.9000  0.8939
+bodymeasurement           0.05  0.8000     0.6667  1.0000  0.8542
+calibration               0.89  0.7895     1.0000  0.6522  0.8287
+allTiresService           0.05  0.0000     0.0000  0.0000  0.1105
+
+  Best classifier per target:
+    calibration               -> lgbm      F1=0.7895
+    wheelmeasurement          -> lgbm      F1=0.8372
+    bodymeasurement           -> lgbm      F1=0.8000
+    dismounting               -> logreg    F1=0.9778
+    bodyrepair                -> lgbm      F1=0.8750
+    assembly                  -> lgbm      F1=0.9651
+    plasticrepair             -> lgbm      F1=0.8511
+    allTiresService           -> logreg    F1=0.2222
+    cleaning                  -> logreg    F1=1.0000
+    paintingPreparation       -> lgbm      F1=0.9859
+    paintingSpraying          -> logreg    F1=0.9855
+    paintingFinish            -> lgbm      F1=0.9859
+    hailrepair                -> lgbm      F1=1.0000
+    glas                      -> lgbm      F1=0.9231
+  [saved] C:\Users\Administrator\baum\model_plots\15_clf_f1_comparison.png
+  [saved] C:\Users\Administrator\baum\model_plots\16_pr_curves.png
+
+======================================================================
+  STEP 5 - Stage 2: Conditional Regression (Positive Subset)
+======================================================================
+
+  Training regressors on positive train subsets...
+
+  -- 5a. Regression Validation (Positive Subset MAE) --
+
+  [RIDGE] Val Regression Results (positive subset):
+                     n_pos   MAE  RMSE  MAE_pct
+calibration           23.0  1.88  2.51    113.5
+wheelmeasurement      20.0  0.55  0.65     55.3
+bodymeasurement        4.0  5.65  7.06    930.7
+dismounting           90.0  1.18  1.94     51.1
+bodyrepair            32.0  2.96  4.13     60.5
+assembly              86.0  1.41  2.10     45.7
+plasticrepair         24.0  1.13  1.57     57.1
+allTiresService        2.0  1.85  2.14     43.3
+cleaning              97.0  0.40  0.55     31.2
+paintingPreparation   70.0  1.62  2.07     21.9
+paintingSpraying      69.0  0.73  0.93     34.4
+paintingFinish        70.0  0.93  1.99     53.0
+hailrepair            32.0  0.03  0.04      0.0
+glas                   7.0  1.59  1.81     61.9
+
+  [LGBM] Val Regression Results (positive subset):
+                     n_pos     MAE    RMSE  MAE_pct
+calibration           23.0    0.95    1.23     57.4
+wheelmeasurement      20.0    0.51    0.66     51.4
+bodymeasurement        4.0    0.46    0.49     76.1
+dismounting           90.0    1.14    1.79     49.4
+bodyrepair            32.0    3.27    4.40     66.8
+assembly              86.0    1.43    1.98     46.6
+plasticrepair         24.0    0.67    0.92     33.8
+allTiresService        2.0    3.28    3.34     76.8
+cleaning              97.0    0.40    0.51     31.5
+paintingPreparation   70.0    2.13    2.67     28.8
+paintingSpraying      69.0    0.64    0.80     30.5
+paintingFinish        70.0    1.10    2.36     62.5
+hailrepair            32.0  160.79  221.69     17.9
+glas                   7.0    0.89    1.00     34.4
+
+======================================================================
+  STEP 6 - Full End-to-End Evaluation on Test Set
+======================================================================
+
+  Running end-to-end predictions on test set...
+
+  -- 6a. Per-Target Test Metrics --
+
+                         F1  Precision  Recall  MAE_e2e  MAE_pos  n_true_pos
+paintingPreparation  0.9859     0.9722  1.0000     2.10     2.62        70.0
+cleaning             0.9843     0.9691  1.0000     0.48     0.47        94.0
+hailrepair           0.9825     1.0000  0.9655    39.60   135.18        29.0
+paintingFinish       0.9718     0.9583  0.9857     0.61     0.78        70.0
+paintingSpraying     0.9714     0.9714  0.9714     0.67     0.89        70.0
+dismounting          0.9600     0.9438  0.9767     1.16     1.24        86.0
+assembly             0.9497     0.9659  0.9341     1.62     1.70        91.0
+plasticrepair        0.9375     0.8824  1.0000     0.12     0.49        15.0
+bodyrepair           0.8533     0.8000  0.9143     1.44     3.61        35.0
+wheelmeasurement     0.8519     0.8214  0.8846     0.21     0.65        26.0
+glas                 0.8000     0.8571  0.7500     0.09     0.74         8.0
+calibration          0.6500     0.9286  0.5000     0.39     1.45        26.0
+bodymeasurement      0.6000     0.5000  0.7500     0.08     0.92         4.0
+allTiresService      0.2222     0.1538  0.4000     0.63     4.32         5.0
+
+  Macro-avg F1 (occurrence)  : 0.8372
+  Mean MAE end-to-end        : 3.5143 min
+
+  Rule baseline comparison   : F1=0.737, MAE=20.5 min
+
+  -- 6b. Total Repair Time MAE per Order --
+
+  Total repair time MAE (per order): 44.15 min
+  Median true total time           : 22.29 min
+  Median pred total time           : 24.39 min
+  [saved] C:\Users\Administrator\baum\model_plots\17_test_metrics.png
+  [saved] C:\Users\Administrator\baum\model_plots\18_true_vs_pred_scatter.png
+
+======================================================================
+  STEP 7 - Feature Importance & Explainability
+======================================================================
+
+  -- 7a. Top TF-IDF Terms per Target (Logistic Regression) --
+
+  Top 5 positive TF-IDF tokens per target (Logistic Regression):
+  Target                    Top tokens
+  ----------------------------------------------------------------------
+  calibration               fas, kalibriersysteme auf, vorbereitung fas, fas kalibriersysteme, kalibriersysteme
+  wheelmeasurement          vor reparatur, vor, kpl vermessen, vermessen, v h
+  bodymeasurement           eingangsvermessung zur, eingangsvermessung, karosserie eingangsvermessung, heckklappe u, stossstange
+  dismounting               rechts, lackieren, bolzen, ventil, dichtheit pruefen
+  bodyrepair                lackstufe, ruestzeit ausbeulsystem, ausbeulsystem, polieren, oberflaechenlackierung lackstufe
+  assembly                  rechts, radlaufabdeckung, hinten links, lackieren, links
+  plasticrepair             kunststoff, kunststoff reparatur, stossfaenger, satz kunststoff, einparkhilfe
+  allTiresService           fahrzeugreinigung, kotfluegelverbreiterung v, zierleiste tuer, kotfluegelverbreiterung, instandsetz
+  cleaning                  rechts, lackieren, spotrep, spotrep stossfaenger, kpl vermessen
+  paintingPreparation       spotrep, spotrep stossfaenger, inkl material, stossfaenger v, inkl
+  paintingSpraying          rechts, lackieren, fensterlinie groesse, abschleppoese, unterhalb fensterlinie
+  paintingFinish            rechts, hinten, hinten links, t³re, links
+  hailrepair                polieren, t³r, fahrzeugreinigung, l sanft, fensterrahmen v
+  glas                      frontscheibe, windschutzscheibe, inkl material, entsorgungskosten glas, entsorgungskosten
+
+  -- 7b. LightGBM Feature Importance (Top Targets) --
+  [saved] C:\Users\Administrator\baum\model_plots\19_lgbm_regressor_importance.png
+  [saved] C:\Users\Administrator\baum\model_plots\20_lgbm_classifier_importance.png
+
+  -- 7c. Error Analysis - Worst False Positives & False Negatives --
+
+  [calibration] FP=1  FN=13  TP=13
+    Worst TP duration errors (true | pred | error in min):
+      true=1.7  pred=6.9  err=5.3
+      true=0.3  pred=2.4  err=2.1
+      true=3.3  pred=5.4  err=2.1
+      true=0.4  pred=2.1  err=1.6
+      true=1.0  pred=2.4  err=1.4
+
+  [glas] FP=1  FN=2  TP=6
+    Worst TP duration errors (true | pred | error in min):
+      true=1.7  pred=3.0  err=1.3
+      true=3.7  pred=2.5  err=1.2
+      true=3.4  pred=2.6  err=0.9
+      true=2.5  pred=3.1  err=0.6
+      true=2.9  pred=3.0  err=0.1
+
+  [assembly] FP=3  FN=6  TP=85
+    Worst TP duration errors (true | pred | error in min):
+      true=34.7  pred=15.1  err=19.7
+      true=17.5  pred=7.9  err=9.6
+      true=4.9  pred=14.2  err=9.3
+      true=15.1  pred=10.5  err=4.7
+      true=8.5  pred=4.2  err=4.3
+
+======================================================================
+  STEP 8 - Sample Prediction Output
+======================================================================
+
+  Showing predictions for 5 test records:
+
+  Order  Make               Positions  True Active  Pred Active  Total True  Total Pred
+  --------------------------------------------------------------------------------
+  0      unknown                    4            2            3         7.8         5.2
+  1      VOLKSWAGEN                32            4            4         3.7         7.5
+  2      FORD                      84            9            8        39.2        42.2
+  3      SEAT                      43            6            6        12.4        18.4
+  4      MERCEDES-BENZ             46            7            7        21.4        17.0
+
+  Detailed view - Test Record 0:
+
+  Target                      True (min)   Pred (min)      Error  Correct?
+  -----------------------------------------------------------------
+  calibration                       0.00         0.00       0.00       YES
+  wheelmeasurement                  0.00         0.00       0.00       YES
+  bodymeasurement                   0.00         0.00       0.00       YES
+  dismounting                       0.00         0.00       0.00       YES
+  bodyrepair                        0.00         0.00       0.00       YES
+  assembly                          0.00         0.00       0.00       YES
+  plasticrepair                     0.00         0.00       0.00       YES
+  allTiresService                   0.00         0.00       0.00       YES
+  cleaning                          0.00         0.00       0.00       YES
+  paintingPreparation               6.45         4.37       2.08       YES
+  paintingSpraying                  1.33         0.43       0.90       YES
+  paintingFinish                    0.00         0.44       0.44        NO
+  hailrepair                        0.00         0.00       0.00       YES
+  glas                              0.00         0.00       0.00       YES
+
+  Total true  : 7.78 min
+  Total pred  : 5.24 min
+
+======================================================================
+  STEP 9 - Save Pipeline
+======================================================================
+
+  Pipeline saved to: C:\Users\Administrator\baum\models\two_stage_pipeline.pkl
+
+  +-------------------------------------------------------------------+
+  |  PHASE 2 COMPLETE - SUMMARY                                      |
+  +-------------------------------------------------------------------+
+  |  Records: 491 total / 294 train /  98 val /  99 test          |
+  |  Features:  3065 (2000 word TF + 1000 char TF + 65 num)     |
+  |  Macro-avg F1 (test)  : 0.8372                          |
+  |  Mean MAE e2e (test)  : 3.51 min                       |
+  |  Rule baseline        : F1=0.736, MAE=20.5 min                  |
+  |  All plots saved to   : C:\Users\Administrator\baum\model_plots  |
+  +-------------------------------------------------------------------+
+
