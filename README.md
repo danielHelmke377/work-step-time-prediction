@@ -11,7 +11,7 @@ To see how this model evolved from a rapid 4-hour prototype to its highly optimi
 
 ## 🚀 Impact & Results
 
-The final pipeline achieves state-of-the-art performance for the business context, optimizing heavily for frequency-weighted metrics (weighting targets by how commonly work steps appear in actual orders).
+The final prototype pipeline achieves strong empirical performance for the business context, optimizing heavily for frequency-weighted metrics (weighting targets by how commonly work steps appear in actual orders).
 
 | Metric | Value |
 |---|---|
@@ -20,7 +20,7 @@ The final pipeline achieves state-of-the-art performance for the business contex
 | **Frequency-Weighted MAE** | **0.96 hrs** |
 | **Frequency-Weighted Accuracy** | **0.943** |
 
-*Note: All metrics are calculated on a hold-out test set (20% of the data) from a single strict Train/Val/Test split. Cross-validation was not used in this baseline iteration.*
+*Note: All metrics are calculated on a hold-out test set (20% of the data) from a single strict Train/Val/Test split. Cross-validation was not used in this prototype evaluation.*
 
 ## 🏗️ Architecture
 
@@ -119,7 +119,7 @@ When running inference via `make predict`, the script outputs a clean, explainab
 .
 ├── scripts/                     # Core runnable scripts
 │   ├── eda.py                   # Exploratory Data Analysis
-│   ├── train.py                 # Core training pipeline (elevated Fully Mixed model)
+│   ├── train.py                 # Core training pipeline (LightGBM classifiers + best regressors)
 │   └── predict.py               # Inference script
 │
 ├── src/repair_order/            # Shared Python package

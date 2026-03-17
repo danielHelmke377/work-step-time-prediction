@@ -16,7 +16,7 @@ To provide a clear distinction between what was completed during the timed asses
 | **Frequency-Weighted F1** | 0.938 | **0.935**  |
 | **Frequency-Weighted MAE**| 2.78 hrs | **0.96 hrs** *(65% reduction in time estimation error)* |
 
-*Note: Due to the extremely small dataset size (~500 records), all metrics reported in this repository are based on a single strict internal Train (60%) / Validation (20%) / Test (20%) split. Cross-validation was not utilized in this prototyping phase.*
+*Note: Due to the extremely small dataset size (~500 records), all metrics reported in this repository are based on a single strict internal Train (60%) / Validation (20%) / Test (20%) split. Cross-validation was not utilized in this prototype evaluation.*
 
 ---
 
