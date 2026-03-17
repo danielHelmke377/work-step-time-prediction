@@ -28,43 +28,20 @@ A **Two-Stage Pipeline** handles the multi-label to regression problem:
    - Features: TF-IDF word n-grams, character n-grams, time/price aggregations per cost-center, and domain keyword regex flags.
 2. **Stage 2 — Conditional Regressors (Duration):** Predicts duration (hours) *only for targets predicted active by Stage 1*. Uses a mix of `Ridge` Regression and `LGBMRegressor` depending on the target dataset size and skew.
 
-## 💻 Quick Start
+## 💻 Repository Usage (Portfolio Example)
 
-### 1. Requirements
+> [!NOTE]
+> **Data Privacy:** Due to customer confidentiality and NDA restrictions, the proprietary JSON repair order dataset used to train this model is **not** included in this public repository. 
+> 
+> As such, you cannot directly run the training or inference scripts. This repository is made public purely as an **architectural portfolio example**, demonstrating how to structure, test, and relentlessly optimize a machine learning solution for a complex business problem.
 
-Ensure you have Python 3.9+ installed.
+### Exploring the Architecture
 
-```bash
-git clone https://github.com/danielHelmke377/work-step-time-prediction.git
-cd work-step-time-prediction
-
-make setup
-```
-
-### 2. Add Data
-
-Place the `orders_simplified_sample.json` data file in `data/`.
-
-### 3. Execution
-
-Use the provided `Makefile` to run the core operations:
-
-```bash
-# Run the core training pipeline (Stage 1 & Stage 2)
-make train
-
-# Run inference batch on 10 random demo orders
-make predict
-
-# Run unit tests
-make test
-```
-
-*Alternatively, activate your environment and run scripts directly:*
-```bash
-python scripts/train.py
-python scripts/predict.py --demo 42
-```
+If you are reviewing this repository:
+1. **Start with the [Project Evolution Summary](docs/project_evolution.md)**: This document is the heart of the repository. It walks through the mindset, experiments, and math behind how the pipeline evolved from a baseline ruleset to its final state.
+2. **Check `scripts/train.py` & `scripts/predict.py`**: Review the `RepairOrderTrainer` and `RepairOrderPredictor` classes to see how code is cleanly orchestrated.
+3. **Review `src/repair_order/features.py`**: See how raw, unstructured German repair texts are tokenized, embedded, and transformed into numeric feature vectors.
+4. **View outputs in `docs/text/`**: You can see exactly what the inference output looks like in the saved `predict_demo_out.txt` and `predict_batch_out.txt` logs.
 
 ## 📁 Repository Structure
 
