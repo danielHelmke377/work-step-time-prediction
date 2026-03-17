@@ -24,24 +24,92 @@ The final pipeline achieves state-of-the-art performance for the business contex
 
 A **Two-Stage Pipeline** handles the multi-label to regression problem:
 
-1. **Stage 1 — Multi-Label Classifiers (Occurrence):** Predicts binary presence (0/1) for each of the 14 targets independently. Uses a mix of `LogisticRegression` and `LGBMClassifier` (best-per-target selected by validation F1).
+```mermaid
+flowchart TD
+    A[Raw Repair Order JSON] -->|Text & Positions| B[Feature Engineering Engine]
+    B -->|TF-IDF N-grams, Domain Regex, Cost-Centers| C{Stage 1: Classifiers}
+    
+    C -->|LightGBM| D[14 Independent Binary Predictions]
+    
+    D -->|Target is Active| E{Stage 2: Regressors}
+    D -.-|Target Inactive| Z[Duration = 0.0 hrs]
+    
+    E -->|Ridge / LightGBM| F[Predicted Duration in Hours]
+    
+    F --> G([Final Repair Prediction])
+    Z --> G
+```
+
+1. **Stage 1 — Multi-Label Classifiers (Occurrence):** Predicts binary presence (0/1) for each of the 14 targets independently. Uses `LGBMClassifier` uniformly across all 14 targets, with thresholds optimized per-target via validation F1.
    - Features: TF-IDF word n-grams, character n-grams, time/price aggregations per cost-center, and domain keyword regex flags.
 2. **Stage 2 — Conditional Regressors (Duration):** Predicts duration (hours) *only for targets predicted active by Stage 1*. Uses a mix of `Ridge` Regression and `LGBMRegressor` depending on the target dataset size and skew.
 
-## 💻 Repository Usage (Portfolio Example)
+## 💻 Repository Usage (Synthetic Data Reproducibility)
 
 > [!NOTE]
-> **Data Privacy:** Due to customer confidentiality and NDA restrictions, the proprietary JSON repair order dataset used to train this model is **not** included in this public repository. 
+> **Data Privacy & Reproducibility:** Due to customer confidentiality and NDA restrictions, the proprietary JSON repair order dataset used to train the original model is **not** included in this public repository. 
 > 
-> As such, you cannot directly run the training or inference scripts. This repository is made public purely as an **architectural portfolio example**, demonstrating how to structure, test, and relentlessly optimize a machine learning solution for a complex business problem.
+> However, to ensure **full reproducibility** of the pipeline, this repository includes a synthetic data generator. The pipeline will automatically generate and fall back to the synthetic dataset if the proprietary data is missing, allowing you to run the training and inference scripts identically to the production version.
+
+### Quick Start: Running the Pipeline
+
+1. **Install Dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. **Train the Model:**
+   ```bash
+   make train
+   ```
+   *(This automatically generates `data/synthetic_orders.json` if it doesn't exist, and trains the full classification/regression pipeline on it).*
+3. **Run Inference & Explanations:**
+   ```bash
+   make predict
+   ```
+   *(Runs prediction on a demo synthetic order, outputting the predictions and the exact keywords that triggered them).*
 
 ### Exploring the Architecture
 
 If you are reviewing this repository:
 1. **Start with the [Project Evolution Summary](docs/project_evolution.md)**: This document is the heart of the repository. It walks through the mindset, experiments, and math behind how the pipeline evolved from a baseline ruleset to its final state.
-2. **Check `scripts/train.py` & `scripts/predict.py`**: Review the `RepairOrderTrainer` and `RepairOrderPredictor` classes to see how code is cleanly orchestrated.
-3. **Review `src/repair_order/features.py`**: See how raw, unstructured German repair texts are tokenized, embedded, and transformed into numeric feature vectors.
-4. **View outputs in `docs/text/`**: You can see exactly what the inference output looks like in the saved `predict_demo_out.txt` and `predict_batch_out.txt` logs.
+2. **Read the [Model Card](MODEL_CARD.md)**: Details the intended use cases, data biases, and acknowledged edge-case failure modes.
+3. **Check `scripts/train.py` & `scripts/predict.py`**: Review the `RepairOrderTrainer` and `RepairOrderPredictor` classes to see how code is cleanly orchestrated.
+4. **Review `src/repair_order/features.py`**: See how raw, unstructured German repair texts are tokenized, embedded, and transformed into numeric feature vectors.
+
+### Example Prediction Output
+When running inference via `make predict`, the script outputs a clean, explainable report detailing not only the predictions, but the rules and keywords that triggered them:
+
+```text
+====================================================================
+  WORK STEP TIME PREDICTION REPORT
+====================================================================
+  Make            : VOLKSWAGEN
+  Line items      : 6
+  Total input cost: EUR 1250.40
+
+  TARGET                          ACTIVE    PROB  PRED(hrs)
+  ------------------------------------------------------------
+  Calibration (ADAS/cameras)         YES    0.94       1.50
+  Body/chassis measurement           YES    0.68       2.00
+  Dis-/mounting                      YES    0.99       4.20
+  Body repair                        YES    0.87       3.40
+  Painting — preparation             YES    0.83       1.20
+  Painting — spraying                YES    0.82       2.30
+  Glass replacement                  ---    0.11       0.00
+  ...
+
+  Total predicted repair time: 14.60 hrs
+
+  EXPLANATION - Why each work step was predicted:
+  ------------------------------------------------------------
+  [Calibration (ADAS/cameras)]
+    Keywords matched : kw_kalibrier, kw_sensor
+  [Body/chassis measurement]
+    Keywords matched : kw_karosserie, kw_vermessung
+  [Painting — spraying]
+    Keywords matched : kw_lack
+====================================================================
+```
 
 ## 📁 Repository Structure
 

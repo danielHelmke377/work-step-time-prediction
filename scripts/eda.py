@@ -755,8 +755,13 @@ class RepairOrderEDA:
 
 def main():
     root = Path(__file__).resolve().parent.parent
+    
+    default_data = root / "data" / "orders_simplified_sample.json"
+    if not default_data.exists():
+        default_data = root / "data" / "synthetic_orders.json"
+        
     parser = argparse.ArgumentParser(description="Run EDA on repair orders.")
-    parser.add_argument("--data", type=str, default=str(root / "data" / "orders_simplified_sample.json"))
+    parser.add_argument("--data", type=str, default=str(default_data))
     args, _ = parser.parse_known_args()
 
     data_path = Path(args.data)

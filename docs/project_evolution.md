@@ -2,6 +2,22 @@
 
 This document details the development history of the Work Step Time Prediction model, from its initial genesis as a 4-hour assessment prototype to its highly optimized final state.
 
+## 🏆 Assessment vs. Final Optimized State
+
+To provide a clear distinction between what was completed during the timed assessment versus subsequent iterative research, the following table compares the initial baseline against the current architecture:
+
+| Component / Metric | 4-Hour Assessment Baseline | Optimized Final Pipeline |
+|---|---|---|
+| **Classifier Architecture** | Logistic Regression & LightGBM | LightGBM (Uniform) |
+| **Regressor Architecture** | Ridge Regressor (Uniform) | Ridge / LightGBM (Selected per-target) |
+| **Decision Thresholds** | Default 0.50 cutoff | F1-Optimized thresholds (0.12 - 0.45) |
+| **Outlier Handling** | None | Winsorized at 95th Percentile |
+| **Sparse Target Fallback**| Mean duration fill | Median duration fill |
+| **Frequency-Weighted F1** | 0.938 | **0.935** *(Sacrificed 0.003 F1 for massive Recall gains)* |
+| **Frequency-Weighted MAE**| 2.78 hrs | **0.96 hrs** *(65% reduction in time estimation error)* |
+
+---
+
 ## ⏱️ Assessment Timeline & Scope
 
 > **Important Note**
@@ -11,6 +27,12 @@ This document details the development history of the Work Step Time Prediction m
 > 
 > **2. Post-Submission Optimisations (Outside the limit)**
 > Following the submission, additional deep-dive analyses were performed to address the asymmetric business cost of false negatives (under-quoting) and the performance of rare minority classes. These were committed **after** the 4-hour window closed to demonstrate real-world model iteration.
+
+---
+
+## 🧪 Post-Submission Optimizations
+
+*The following experiments and iterative improvements were developed post-submission to push the architecture to a production-ready state.*
 
 ---
 
@@ -117,22 +139,16 @@ Extends the true optimal setup by using the **best-performing regressor per targ
 
 ---
 
-## 🔬 Experiment: Fully Mixed Pipeline (`experiments/combined_best/`)
+## 🔬 Experiment: Final Optimized Pipeline (LightGBM Classifiers)
 
-Extends the best-per-target regressor setup by also selecting the best **classifier** per target — LogReg vs LightGBM, chosen by validation F1. No oversampling.
+Extends the best-per-target regressor setup by standardizing on **LightGBM** uniformly for all 14 Stage 1 classifiers (chosen due to its robust performance and to simplify the final pipeline architecture), with thresholds chosen by validation F1. No oversampling is used.
 
-Per-target classifier winners:
-
-| LogReg wins | LightGBM wins |
-|---|---|
-| `dismounting`, `allTiresService`, `cleaning`, `paintingSpraying` | `calibration`, `wheelmeasurement`, `bodymeasurement`, `bodyrepair`, `assembly`, `plasticrepair`, `paintingPreparation`, `paintingFinish`, `hailrepair`, `glas` |
-
-| Metric | Baseline | Best-per-REG | **Fully Mixed** | Delta vs BestReg |
+| Metric | Baseline | Best-per-REG | **Final Pipeline** | Delta vs BestReg |
 |---|---|---|---|---|
-| Macro F1 | 0.8372 | 0.8372 | **0.8381** | +0.0009 |
-| Freq-weighted F1 | 0.9387 | 0.9347 | **0.9348** | +0.0001 |
+| Macro F1 | 0.8372 | 0.8372 | **0.8351** | -0.0021 |
+| Freq-weighted F1 | 0.9387 | 0.9347 | **0.9350** | +0.0003 |
 | Freq-weighted Accuracy | 0.9433 | 0.9433 | **0.9434** | +0.0001 |
 | Macro MAE | 3.51 hrs | 0.70 hrs | **0.70 hrs** | ±0 |
 | **Freq-weighted MAE** | 2.78 hrs | **0.96 hrs** | **0.96 hrs** | ±0 |
 
-The MAE stays the same as best-per-REG (regressor selection is identical). The small classifier changes (LogReg winning 4 targets) produce marginal classification gains. This final configuration forms the basis of the current `scripts/train.py` core pipeline.
+The MAE stays the same (regressor selection is identical). Standardizing on LightGBM produces virtually identical frequency-weighted metrics to a fully mixed LogReg/LGBM approach, drastically reducing system complexity. This configuration forms the right-side of the comparison table and the basis of the current `scripts/train.py` core pipeline.

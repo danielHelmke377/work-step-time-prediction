@@ -224,8 +224,12 @@ class RepairOrderPredictor:
 def main():
     root = Path(__file__).resolve().parent.parent
     
+    default_data = root / "data" / "orders_simplified_sample.json"
+    if not default_data.exists():
+        default_data = root / "data" / "synthetic_orders.json"
+    
     parser = argparse.ArgumentParser(description="Predict repair work steps from a JSON order.")
-    parser.add_argument("--data", type=str, default=str(root / "data" / "orders_simplified_sample.json"))
+    parser.add_argument("--data", type=str, default=str(default_data))
     parser.add_argument("--model", type=str, default=str(root / "models" / "two_stage_pipeline.pkl"))
     parser.add_argument("--input", type=str, help="Path to a JSON file containing a single order dict.")
     parser.add_argument("--demo", type=int, help="Index of a record in the training data to use as demo.")

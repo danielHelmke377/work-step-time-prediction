@@ -1,0 +1,26 @@
+
+======================================================================
+  STEP 1 — Feature engineering
+======================================================================
+  Train: 150 | Val: 50 | Test: 50
+
+======================================================================
+  STEP 2 — Best-per-target classifiers (no oversampling)
+======================================================================
+Traceback (most recent call last):
+  File "C:\Users\Administrator\baum\scripts\train.py", line 467, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\Administrator\baum\scripts\train.py", line 463, in main
+    trainer.run()
+    ~~~~~~~~~~~^^
+  File "C:\Users\Administrator\baum\scripts\train.py", line 440, in run
+    self.train_classifiers()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\baum\scripts\train.py", line 203, in train_classifiers
+    print(f"  {t:<22}  logreg F1={f1_lr:.4f}  lgbm F1={f1_lc:.4f}  \u2192 {self.clf_choice[t]}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 60: character maps to <undefined>

@@ -30,7 +30,7 @@ import numpy as np
 import pandas as pd
 from scipy import sparse
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression, Ridge
+from sklearn.linear_model import Ridge
 from sklearn.metrics import (
     accuracy_score, f1_score, mean_absolute_error,
     precision_score, recall_score,
@@ -168,7 +168,7 @@ class RepairOrderTrainer:
         return best_f1, best_t
 
     def train_classifiers(self):
-        section("STEP 2 — Best-per-target classifiers (no oversampling)")
+        section("STEP 2 — Classifiers (LightGBM)")
 
         self.clf_best = {}
         self.clf_thr = {}
@@ -181,26 +181,17 @@ class RepairOrderTrainer:
             n_neg = len(y_tr) - n_pos
             w = max(1.0, n_neg / (n_pos + 1e-9))
 
-            # Logistic Regression
-            lr = LogisticRegression(C=1.0, max_iter=1000, class_weight={0: 1.0, 1: w},
-                                    random_state=self.RANDOM_STATE)
-            lr.fit(self.X_train, y_tr)
-
             # LightGBM classifier
             lc = lgb.LGBMClassifier(n_estimators=300, learning_rate=0.05, num_leaves=31,
                                      scale_pos_weight=w, random_state=self.RANDOM_STATE,
                                      verbose=-1, n_jobs=1)
             lc.fit(self.X_train, y_tr)
 
-            f1_lr, thr_lr = self._best_f1_thr(lr, self.X_val, y_va)
             f1_lc, thr_lc = self._best_f1_thr(lc, self.X_val, y_va)
 
-            if f1_lr >= f1_lc:
-                self.clf_best[t], self.clf_thr[t], self.clf_choice[t] = lr, thr_lr, "logreg"
-            else:
-                self.clf_best[t], self.clf_thr[t], self.clf_choice[t] = lc, thr_lc, "lgbm"
+            self.clf_best[t], self.clf_thr[t], self.clf_choice[t] = lc, thr_lc, "lgbm"
 
-            print(f"  {t:<22}  logreg F1={f1_lr:.4f}  lgbm F1={f1_lc:.4f}  → {self.clf_choice[t]}")
+            print(f"  {t:<22}  lgbm F1={f1_lc:.4f}  → {self.clf_choice[t]}")
 
     def _make_lgbm_reg(self, n_pos):
         return lgb.LGBMRegressor(
@@ -404,9 +395,9 @@ both chosen by validation-set comparison. No oversampling, class weights only.
             "tfidf_word": self.tfidf_word,
             "tfidf_char": self.tfidf_char,
             "numeric_features": self.numeric_features,
-            "clf_models": {"logreg": {}, "lgbm": {}},
+            "clf_models": {"lgbm": {}},
             "reg_models": {"ridge": {}, "lgbm": {}},
-            "thresholds": {"logreg": {}, "lgbm": {}},
+            "thresholds": {"lgbm": {}},
             "best_clf_per_target": self.clf_choice,
             "output_targets": OUTPUT_TARGETS,
             "make_freq_lookup": self.make_freq_lookup,
@@ -444,12 +435,17 @@ both chosen by validation-set comparison. No oversampling, class weights only.
 
 
 def main():
+    root = Path(__file__).resolve().parent.parent
+    
+    default_data = root / "data" / "orders_simplified_sample.json"
+    if not default_data.exists():
+        default_data = root / "data" / "synthetic_orders.json"
+
     parser = argparse.ArgumentParser(description="Train the fully mixed pipeline.")
-    parser.add_argument("--data", type=str, default=str(Path(__file__).resolve().parent.parent / "data" / "orders_simplified_sample.json"),
+    parser.add_argument("--data", type=str, default=str(default_data),
                         help="Path to the simplified orders JSON file.")
     args, _ = parser.parse_known_args()
     
-    root = Path(__file__).resolve().parent.parent
     data_path = Path(args.data)
     md_dir = root / "docs" / "markdowns"
     models_dir = root / "models"
