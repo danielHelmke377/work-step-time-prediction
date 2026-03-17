@@ -13,8 +13,10 @@ To provide a clear distinction between what was completed during the timed asses
 | **Decision Thresholds** | Default 0.50 cutoff | F1-Optimized thresholds (0.12 - 0.45) |
 | **Outlier Handling** | None | Winsorized at 95th Percentile |
 | **Sparse Target Fallback**| Mean duration fill | Median duration fill |
-| **Frequency-Weighted F1** | 0.938 | **0.935** *(Sacrificed 0.003 F1 for massive Recall gains)* |
+| **Frequency-Weighted F1** | 0.938 | **0.935**  |
 | **Frequency-Weighted MAE**| 2.78 hrs | **0.96 hrs** *(65% reduction in time estimation error)* |
+
+*Note: Due to the extremely small dataset size (~500 records), all metrics reported in this repository are based on a single strict internal Train (60%) / Validation (20%) / Test (20%) split. Cross-validation was not utilized in this prototyping phase.*
 
 ---
 

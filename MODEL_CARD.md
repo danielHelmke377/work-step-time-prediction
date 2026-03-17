@@ -22,6 +22,7 @@
 ## Metrics & Evaluation
 - **Optimization Strategy:** Models were selected and tuned based on **Frequency-Weighted metrics** to align with business reality (optimizing for the most common tasks rather than over-indexing on rare edge cases).
 - **Threshold Tuning:** Classification decision thresholds were strictly tuned using F1-score maximization on the validation set to balance Precision and Recall for imbalanced targets.
+- **Validation Methodology:** Due to constrained dataset size (~500 records), metrics are reported on a single hold-out Test set (20%) using a fixed Train (60%) / Validation (20%) split. K-fold cross-validation was not utilized.
 
 ## Known Failure Modes
 1. **Extreme Sparsity (The "Hail" Problem):** 

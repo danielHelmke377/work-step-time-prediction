@@ -20,6 +20,8 @@ The final pipeline achieves state-of-the-art performance for the business contex
 | **Frequency-Weighted MAE** | **0.96 hrs** |
 | **Frequency-Weighted Accuracy** | **0.943** |
 
+*Note: All metrics are calculated on a hold-out test set (20% of the data) from a single strict Train/Val/Test split. Cross-validation was not used in this baseline iteration.*
+
 ## 🏗️ Architecture
 
 A **Two-Stage Pipeline** handles the multi-label to regression problem:
