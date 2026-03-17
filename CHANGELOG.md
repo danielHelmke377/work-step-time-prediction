@@ -8,6 +8,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [2.0.0] — 2026-03-17 — Portfolio Ready Restructure
 
 ### Added
+- `scripts/generate_synthetic_data.py` — generates a synthetic demo dataset for public reproducibility without requiring proprietary datasets.
+- `MODEL_CARD.md` — explicitly documents intended use, known failure modes (the "hail" problem), biases, and dataset constraints.
 - `pyproject.toml` — modern dependency management, replacing `requirements.txt`.
 - `Makefile` — standardized pipeline execution (`make setup`, `make train`, `make predict`, `make test`).
 - `RepairOrderTrainer` class in `scripts/train.py` for encapsulated training orchestration.
@@ -15,6 +17,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `RepairOrderEDA` class in `scripts/eda.py` for stateful exploratory data analysis.
 
 ### Changed
+- Refactored Stage 1 architecture to uniformly use `LGBMClassifier` across all 14 targets, greatly reducing complexity while maintaining near-identical business metrics.
+- Softened documentation language to clarify that evaluations are on a single strict 60/20/20 split (no CV due to data size limitations) and reflect a more deployment-minded focus.
 - Centralized configuration and feature extraction into a core `src/repair_order/` package, achieving strict DRY compliance.
 - Restructured root directory: moved exploratory model scripts to `experiments/`, docs to `docs/`, and core logic to `scripts/`.
 - Overhauled `README.md` to prioritize "Time to Value," emphasizing business impact and final results.
