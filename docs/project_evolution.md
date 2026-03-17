@@ -1,6 +1,6 @@
-# Project Evolution: Repair Order Prediction
+# Project Evolution: Work Step Time Prediction
 
-This document details the development history of the Repair Order Prediction model, from its initial genesis as a 4-hour assessment prototype to its highly optimized final state.
+This document details the development history of the Work Step Time Prediction model, from its initial genesis as a 4-hour assessment prototype to its highly optimized final state.
 
 ## ⏱️ Assessment Timeline & Scope
 

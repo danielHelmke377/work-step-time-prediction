@@ -18,19 +18,19 @@ Usage:
     python scripts/predict.py --demo 42 --evaluate
 """
 
-import warnings
-warnings.filterwarnings("ignore", message="X does not have valid feature names")
 import argparse
 import json
 import re
 import sys
+import warnings
 from pathlib import Path
 
 import numpy as np
 
-# ── Paths ────────────────────────────────────────────────────────────────────
 from repair_order.config import KEYWORD_FLAGS, TARGET_LABELS, TARGET_KEYWORD_MAP
 from repair_order.pipeline import load_pipeline as lib_load_pipeline, predict_order
+
+warnings.filterwarnings("ignore", message="X does not have valid feature names")
 
 BAR = "=" * 68
 
@@ -89,7 +89,7 @@ class RepairOrderPredictor:
 
     def _print_report(self, result, explanations=None, true_output=None):
         print(f"\n{BAR}")
-        print("  REPAIR ORDER PREDICTION REPORT")
+        print("  WORK STEP TIME PREDICTION REPORT")
         print(BAR)
         print(f"  Make            : {result['make']}")
         print(f"  Line items      : {result['n_positions']}")
@@ -236,7 +236,7 @@ def main():
     args = parser.parse_args()
 
     print(f"\n{BAR}")
-    print("  Repair Order Inference Engine")
+    print("  Work Step Time Inference Engine")
     print(BAR)
 
     data_path = Path(args.data)

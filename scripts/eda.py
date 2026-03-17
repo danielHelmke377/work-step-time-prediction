@@ -3,7 +3,7 @@
 Phase 1 — Data Analysis Script
 ================================
 orders_simplified_sample.json
-EDA for Multi-Target Repair Order Prediction
+EDA for Multi-Target Work Step Time Prediction
 
 Steps:
   1. Load & Structural Validation

@@ -1,5 +1,5 @@
 """
-features.py — Shared feature engineering for Repair Order Prediction.
+features.py — Shared feature engineering for Work Step Time Prediction.
 =======================================================================
 Functions for preprocessing order positions, building the combined order
 text string, and computing the numeric/keyword/make feature vector.

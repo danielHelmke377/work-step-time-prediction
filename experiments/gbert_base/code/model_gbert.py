@@ -1,7 +1,7 @@
 """
 model_gbert.py
 ==============
-Two-Stage Repair Order Prediction Pipeline — BERT Feature Version
+Two-Stage Work Step Time Prediction Pipeline — BERT Feature Version
 ==================================================================
 
 Identical architecture to model_phase2.py, but the TF-IDF text features are

@@ -1,4 +1,4 @@
-﻿python : C:\Users\Admin
+python : C:\Users\Admin
 istrator\AppData\Local\
 Python\pythoncore-3.14-
 64\Lib\site-packages\sk
@@ -288,7 +288,7 @@ names
   Detailed report for first batch record (index 41):
 
 ====================================================================
-  REPAIR ORDER PREDICTION REPORT
+  WORK STEP TIME PREDICTION REPORT
 ====================================================================
   Make            : MAZDA
   Line items      : 46

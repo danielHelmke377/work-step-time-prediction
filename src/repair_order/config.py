@@ -1,5 +1,5 @@
 """
-config.py — Shared constants for the Repair Order Prediction project.
+config.py — Shared constants for the Work Step Time Prediction project.
 =====================================================================
 All scripts (model_phase2.py, predict.py, gbert equivalents) should
 import their constants from here to avoid copy-paste drift.

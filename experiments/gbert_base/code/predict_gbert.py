@@ -308,7 +308,7 @@ def explain_prediction(result, record):
 
 def print_report(result, explanations=None, true_output=None):
     print(f"\n{BAR}")
-    print("  REPAIR ORDER PREDICTION REPORT  [gbert-base]")
+    print("  WORK STEP TIME PREDICTION REPORT  [gbert-base]")
     print(BAR)
     print(f"  Make            : {result['make']}")
     print(f"  Line items      : {result['n_positions']}")

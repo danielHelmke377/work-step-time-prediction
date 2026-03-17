@@ -1,4 +1,4 @@
-﻿python : C:\Users\Admin
+python : C:\Users\Admin
 istrator\AppData\Local\
 Python\pythoncore-3.14-
 64\Lib\site-packages\sk
@@ -48,7 +48,7 @@ names
   Demo record index: 2 / 490
 
 ====================================================================
-  REPAIR ORDER PREDICTION REPORT
+  WORK STEP TIME PREDICTION REPORT
 ====================================================================
   Make            : TESLA
   Line items      : 27

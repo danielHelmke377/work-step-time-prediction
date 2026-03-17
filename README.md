@@ -1,11 +1,11 @@
-# Repair Order Prediction Pipeline
+# Work Step Time Prediction Pipeline
 
 [![CI](https://github.com/danielHelmke377/work-step-time-prediction/actions/workflows/ci.yml/badge.svg)](https://github.com/danielHelmke377/work-step-time-prediction/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Predicts **14 binary work steps** (e.g., `bodyrepair`, `paintingSpraying`) and their **duration in hours** from unstructured JSON repair order data. 
 
-This repository represents the **first step in prototyping the best possible model** for a multi-label and regression pipeline, evolving rapidly from a 4-hour assessment into a highly optimized architecture. While not yet a fully integrated production system, it demonstrates the systematic iteration required to build one.
+This repository represents the **first step in prototyping the best possible model** for a work-step time prediction pipeline, evolving rapidly from a 4-hour assessment into a highly optimized architecture. While not yet a fully integrated production system, it demonstrates the systematic iteration required to build one.
 
 To see how this model evolved from a rapid 4-hour prototype to its highly optimized final state, explore the experimental logs inside the [Project Evolution Summary](docs/project_evolution.md).
 

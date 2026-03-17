@@ -1,5 +1,5 @@
 """
-test_smoke.py — Smoke Tests for the Repair Order Prediction Pipeline
+test_smoke.py — Smoke Tests for the Work Step Time Prediction Pipeline
 ======================================================================
 These tests verify that saved artefacts exist, load correctly, and
 have the expected shapes and structure. They do NOT require the full
@@ -84,13 +84,13 @@ class TestGbertExperiment:
     @pytest.fixture(scope="class")
     def embeddings(self):
         if not GBERT_EMB.exists():
-            pytest.skip(f"BERT embeddings not found — run extract_bert_embeddings.py first")
+            pytest.skip("BERT embeddings not found — run extract_bert_embeddings.py first")
         return np.load(GBERT_EMB)
 
     @pytest.fixture(scope="class")
     def gbert_pipeline(self):
         if not GBERT_PKL.exists():
-            pytest.skip(f"gbert pipeline not found — run gbert_base/code/model_gbert.py first")
+            pytest.skip("gbert pipeline not found — run gbert_base/code/model_gbert.py first")
         with open(GBERT_PKL, "rb") as f:
             return pickle.load(f)
 

@@ -1,5 +1,5 @@
 """
-repair_order — Shared utilities for the Repair Order Prediction project.
+repair_order — Shared utilities for the Work Step Time Prediction project.
 
 Modules:
     config   — constants shared across all scripts (targets, keyword flags, etc.)
