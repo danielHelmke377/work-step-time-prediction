@@ -14,5 +14,5 @@ To regenerate, redirect stdout when running the relevant script:
 
 ```bash
 python code/eda_phase1.py > text/eda_output.txt
-python code/model_phase2.py > text/model_output.txt
+python scripts/train.py > text/model_output.txt
 ```

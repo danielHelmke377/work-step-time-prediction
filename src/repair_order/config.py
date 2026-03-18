@@ -1,7 +1,7 @@
 """
 config.py — Shared constants for the Work Step Time Prediction project.
 =====================================================================
-All scripts (model_phase2.py, predict.py, gbert equivalents) should
+# All scripts (train.py, predict.py, gbert equivalents) should import constants from here to avoid drift.
 import their constants from here to avoid copy-paste drift.
 """
 

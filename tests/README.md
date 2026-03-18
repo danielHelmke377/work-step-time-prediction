@@ -15,4 +15,4 @@ structure. They do **not** require the full dataset — only the saved pickles.
 | `TestGbertExperiment` | BERT embeddings shape (N×768), L2-normalisation, gbert pipeline metadata |
 
 > Tests skip automatically if the relevant artefact has not yet been generated.
-> Run `model_phase2.py` and/or `gbert_base/code/model_gbert.py` first.
+   > Run the training script (`scripts/train.py`) and inference script (`scripts/predict.py`) as needed.
