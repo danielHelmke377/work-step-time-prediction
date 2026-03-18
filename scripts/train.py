@@ -358,36 +358,17 @@ class RepairOrderTrainer:
                 f"| {r['Accuracy']:.4f} | {r['F1']:.4f} | {r['Recall']:.4f} | {r['MAE']:.2f} |"
             )
 
-        clf_summary = {}
-        for t in OUTPUT_TARGETS:
-            clf_summary[self.clf_choice[t]] = clf_summary.get(self.clf_choice[t], 0) + 1
 
-        md = f"""# Fully Mixed Pipeline — Best-Per-Target CLF + Best-Per-Target REG
+        md = f"""# Two-Stage Pipeline — Training Results
 
 **Date:** {date.today()}
 
-**Goal:** Use the best classifier and the best regressor independently per target,
-both chosen by validation-set comparison. No oversampling, class weights only.
+**Stage 1:** `LGBMClassifier` (one per target, no oversampling).
+Decision thresholds F1-tuned on the validation set.
 
-## Classifier Summary
-
-| Model | n targets |
-|---|---|
-| Logistic Regression | {clf_summary.get('logreg', 0)} |
-| LightGBM | {clf_summary.get('lgbm', 0)} |
-
-## Comparison vs Previous Experiments
-
-| Metric | Baseline | True Optimal | Best-per-REG | **Fully Mixed** |
-|---|---|---|---|---|
-| Macro F1 | 0.8372 | 0.8372 | 0.8372 | **{macro_f1}** |
-| Macro Recall | 0.779 | 0.8594 | 0.8594 | **{macro_rec}** |
-| Macro Accuracy | 0.9380 | 0.9380 | 0.9380 | **{macro_acc}** |
-| Freq-weighted F1 | {REF['baseline_fw_f1']} | {REF['optimal_fw_f1']} | {REF['bptr_fw_f1']} | **{fw_f1}** |
-| Freq-weighted Recall | 0.9460 | 0.9412 | 0.9412 | **{fw_rec}** |
-| Freq-weighted Accuracy | 0.9433 | 0.9433 | 0.9433 | **{fw_acc}** |
-| Macro MAE | 3.51 hrs | 2.14 hrs | 0.70 hrs | **{macro_mae} hrs** |
-| **Freq-weighted MAE** | {REF['baseline_fw_mae']} hrs | {REF['optimal_fw_mae']} hrs | {REF['bptr_fw_mae']} hrs | **{fw_mae} hrs** |
+**Stage 2:** Per-target best regressor from `BEST_REG`
+(`lgbm`, `ridge`, or `ridge_auto`). Targets with < 5 positive
+training samples fall back to the mean of positives.
 
 ## Per-target Results
 
