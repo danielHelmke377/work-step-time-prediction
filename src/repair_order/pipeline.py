@@ -14,7 +14,6 @@ import time
 from pathlib import Path
 from typing import Any
 
-import numpy as np
 import pandas as pd
 from scipy import sparse
 

@@ -20,6 +20,22 @@
 - **Make/Brand Bias:** The model applies one-hot encoded features for the top 8 vehicle makes (e.g., `MERCEDES-BENZ`, `VW`). Rare makes (e.g., `Maserati`) are grouped into an 'Other' category and may suffer from less accurate duration predictions.
 
 ## Metrics & Evaluation
+
+### Results (original business data, held-out test set)
+
+| Metric | Value | Note |
+|---|---|---|
+| **Macro F1** | **0.838** | Unweighted across all 14 targets |
+| **Frequency-Weighted F1** | **0.935** | Weighted by target occurrence frequency |
+| **Frequency-Weighted MAE** | **0.96 hrs** | Mean absolute error weighted by frequency |
+| **Frequency-Weighted Accuracy** | **0.943** | Weighted accuracy |
+
+*Metrics reported on a held-out test set (20%) from a single strict 60/20/20 Train/Val/Test split on ~500 historical repair orders. Cross-validation was not used due to dataset size constraints.*
+
+> [!NOTE]
+> These metrics were achieved on the proprietary business dataset. Due to NDA restrictions that data is not included here. The synthetic dataset included in this repository is for workflow reproducibility only; metrics on synthetic data are not meaningful.
+
+### Methodology
 - **Optimization Strategy:** Models were selected and tuned based on **Frequency-Weighted metrics** to align with business reality (optimizing for the most common tasks rather than over-indexing on rare edge cases).
 - **Threshold Tuning:** Classification decision thresholds were strictly tuned using F1-score maximization on the validation set to balance Precision and Recall for imbalanced targets.
 - **Validation Methodology:** Due to constrained dataset size (~500 records), metrics are reported on a single hold-out Test set (20%) using a fixed Train (60%) / Validation (20%) split. K-fold cross-validation was not utilized.
