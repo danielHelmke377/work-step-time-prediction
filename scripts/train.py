@@ -34,8 +34,11 @@ from scipy import sparse
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import Ridge
 from sklearn.metrics import (
-    accuracy_score, f1_score, mean_absolute_error,
-    precision_score, recall_score,
+    accuracy_score,
+    f1_score,
+    mean_absolute_error,
+    precision_score,
+    recall_score,
 )
 from sklearn.model_selection import train_test_split
 

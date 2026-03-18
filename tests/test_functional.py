@@ -8,11 +8,11 @@ dictionary with all expected targets is returned and contains non‑zero
 values.
 """
 
+import os
+import pickle
 import subprocess
 import sys
-import os
 from pathlib import Path
-import pickle
 
 import pytest
 
