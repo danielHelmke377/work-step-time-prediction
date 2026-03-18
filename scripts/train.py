@@ -1,21 +1,23 @@
 """train.py
 ==========
-Fully mixed pipeline — best-per-target classifier AND best-per-target regressor.
+Two-stage repair-order pipeline trainer.
 
-Stage 1 — Classifiers (NO oversampling, class weights only):
-  LightGBM classifiers are trained per target. Thresholds are F1‑tuned on the validation set.
-  The model with higher val F1 is used for test‑set predictions.
+Stage 1 — Classifiers (LightGBM only, no oversampling):
+  One ``LGBMClassifier`` is trained per target independently.
+  Decision thresholds are F1-tuned on the validation set.
 
-Optional: use `--use-logreg` flag to also train LogisticRegression classifiers per target and select the best.
-
-Stage 2 — Regressors (same as model_best_per_target_reg.py):
-  Winner from markdowns/regressor_selection.md per target.
-  hailrepair: plain Ridge vs Ridge+winsorise, chosen by val MAE.
-  Fallback = mean of positives if n_pos < 5.
+Stage 2 — Regressors (best-per-target, pre-selected):
+  The ``BEST_REG`` dict maps each target to its preferred model type:
+    ``lgbm``       — ``LGBMRegressor``
+    ``ridge``      — ``Ridge`` regression
+    ``ridge_auto`` — ``Ridge`` with automatic winsorisation: plain vs.
+                     cap-at-95th-percentile, chosen by validation MAE.
+  Targets with fewer than 5 positive training samples fall back to the
+  mean of positives.
 
 Outputs:
-  docs/markdowns/training_results.md
-  models/two_stage_pipeline.pkl
+  docs/markdowns/training_results.md   — human-readable metric report
+  models/two_stage_pipeline.pkl        — serialised pipeline dict
 """
 
 import argparse
@@ -445,14 +447,18 @@ both chosen by validation-set comparison. No oversampling, class weights only.
 
 def main():
     root = Path(__file__).resolve().parent.parent
-    
-    default_data = root / "data" / "orders_simplified_sample.json"
-    if not default_data.exists():
-        default_data = root / "data" / "synthetic_orders.json"
 
-    parser = argparse.ArgumentParser(description="Train the fully mixed pipeline.")
-    parser.add_argument("--data", type=str, default=str(default_data),
-                        help="Path to the simplified orders JSON file.")
+    # Default to the public synthetic dataset; fall back to the proprietary
+    # orders file if it exists (for internal use).
+    default_data = root / "data" / "synthetic_orders.json"
+    if not default_data.exists():
+        default_data = root / "data" / "orders_simplified_sample.json"
+
+    parser = argparse.ArgumentParser(description="Train the two-stage repair-order pipeline.")
+    parser.add_argument(
+        "--data", type=str, default=str(default_data),
+        help="Path to a training orders JSON file (default: data/synthetic_orders.json).",
+    )
     args, _ = parser.parse_known_args()
     
     data_path = Path(args.data)
