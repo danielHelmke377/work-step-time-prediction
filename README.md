@@ -3,138 +3,235 @@
 [![CI](https://github.com/danielHelmke377/work-step-time-prediction/actions/workflows/ci.yml/badge.svg)](https://github.com/danielHelmke377/work-step-time-prediction/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Predicts **14 binary work steps** (e.g., `bodyrepair`, `paintingSpraying`) and their **duration in hours** from unstructured JSON repair orders in the German automotive body-shop domain.
+Two-stage machine learning pipeline for predicting **14 repair work steps** and their **execution time in hours** from unstructured JSON repair orders in the German automotive body-shop domain.
 
-Built as a rapid assessment prototype and iterated to production-oriented quality over multiple experiment cycles — see the [Project Evolution Summary](docs/project_evolution.md) for the full journey from baseline to final pipeline.
+Built as a rapid assessment prototype and iterated toward production-oriented quality through multiple experiment cycles. See the [Project Evolution Summary](docs/project_evolution.md) for the full path from baseline to final pipeline.
 
-## 🎯 What This Demonstrates
+---
 
-- **Multi-label → conditional regression cascade** — Stage 1 classifies which work steps occur; Stage 2 predicts duration only for active steps
-- **NLP on German domain text** — TF-IDF word + character n-grams, 17 hand-crafted regex keyword flags, cost-center features
-- **Systematic ML experimentation** — tracked evolution from rule baseline through logistic regression, LightGBM, BERT embeddings, and ensemble variants
-- **Engineering discipline** — shared `src/repair_order/` package, editable install, two-stage tests, CI on Python 3.11 + 3.12
-- **Full public reproducibility** — synthetic data generator included; CI trains and predicts end-to-end on every push
+## Why this project matters
 
+Body-shop planning depends on estimating **which repair steps will happen** and **how long they will take** before work begins. This repository tackles that problem with a practical two-stage ML system:
 
-## 🚀 Impact & Results
+- **Stage 1:** predict which work steps occur
+- **Stage 2:** predict duration only for the work steps predicted active
 
-The final prototype pipeline achieves strong empirical performance for the business context, optimizing for frequency-weighted metrics (weighting targets by how commonly work steps appear in actual orders).
+That design keeps the problem aligned with the real business workflow and avoids predicting duration for steps that are unlikely to happen.
+
+---
+
+## What this project demonstrates
+
+- **Multi-label → conditional regression cascade**  
+  Stage 1 classifies work-step occurrence; Stage 2 predicts duration only for active steps.
+
+- **NLP on German domain text**  
+  Uses TF-IDF word + character n-grams, 17 hand-crafted regex keyword flags, and cost-center / price aggregation features.
+
+- **Systematic ML experimentation**  
+  Tracks the path from baseline rules through logistic regression, LightGBM, BERT-embedding variants, and combined best-pipeline experiments.
+
+- **Engineering discipline**  
+  Shared `src/repair_order/` package, editable install, tests, CI on Python 3.11 + 3.12, reproducible public workflow on synthetic data.
+
+- **Public reproducibility despite private source data**  
+  Includes a synthetic data generator so the full train → test → predict path runs end to end without NDA-restricted production data.
+
+---
+
+## At a glance
+
+- **Problem:** predict 14 binary repair work steps and their durations from raw JSON repair orders
+- **Domain:** German automotive body-shop / repair-order planning
+- **Modeling strategy:** two-stage pipeline with LightGBM classification + per-target best regressor
+- **Text features:** TF-IDF word n-grams, character n-grams, regex keyword flags
+- **Structured features:** cost-center, time, price, and count aggregations
+- **Public workflow:** synthetic-data generation, training, tests, and inference included
+- **Validation:** strict single train/validation/test split on the available dataset
+
+---
+
+## Impact & results
+
+The final prototype performs strongly for the target business context, with evaluation focused on frequency-weighted metrics so common work steps contribute proportionally to the final score.
 
 | Metric | Value |
-|---|---|
+|---|---:|
 | **Macro F1** | **0.838** |
 | **Frequency-Weighted F1** | **0.935** |
 | **Frequency-Weighted MAE** | **0.96 hrs** |
 | **Frequency-Weighted Accuracy** | **0.943** |
 
-*Note: All metrics are calculated on a hold-out test set (20% of the data) from a single strict Train/Val/Test split. Cross-validation was not used in this prototype evaluation.*
+> [!IMPORTANT]
+> All reported metrics come from a **single strict train/validation/test split** with a 20% hold-out test set.  
+> Cross-validation was **not** used in this prototype evaluation.
 
-## 🏗️ Architecture
+---
 
-A **Two-Stage Pipeline** handles the multi-label to regression problem:
+## Architecture
+
+The core idea is a **two-stage pipeline** that separates *occurrence prediction* from *duration prediction*.
 
 ```mermaid
 flowchart TD
     A[Raw Repair Order JSON] -->|Text & Positions| B[Feature Engineering Engine]
-    B -->|TF-IDF N-grams, Domain Regex, Cost-Centers| C{Stage 1: Classifiers}
-    
+    B -->|TF-IDF N-grams, Regex Flags, Cost-Center Aggregations| C{Stage 1: Classifiers}
+
     C -->|LightGBM| D[14 Independent Binary Predictions]
-    
-    D -->|Target is Active| E{Stage 2: Regressors}
+
+    D -->|Target Active| E{Stage 2: Regressors}
     D -.-|Target Inactive| Z[Duration = 0.0 hrs]
-    
+
     E -->|Ridge / LightGBM| F[Predicted Duration in Hours]
-    
+
     F --> G([Final Repair Prediction])
     Z --> G
 ```
 
-1. **Stage 1 — Multi-Label Classifiers (Occurrence):** Predicts binary presence (0/1) for each of the 14 targets independently. Uses `LGBMClassifier` uniformly across all 14 targets, with thresholds optimized per-target via validation F1.
-   - Features: TF-IDF word n-grams, character n-grams, time/price aggregations per cost-center, and domain keyword regex flags.
-2. **Stage 2 — Conditional Regressors (Duration):** Predicts duration (hours) *only for targets predicted active by Stage 1*. Uses a mix of `Ridge` Regression and `LGBMRegressor` depending on the target dataset size and skew.
+### Stage 1 — Multi-label occurrence prediction
+Predicts binary presence (`0/1`) for each of the 14 work steps independently.
 
-## 💻 Repository Usage (Synthetic Data Reproducibility)
+- Uses **`LGBMClassifier`** uniformly across all targets
+- Optimizes **per-target decision thresholds** on the validation set using F1
+- Combines text and structured features:
+  - TF-IDF word n-grams
+  - TF-IDF character n-grams
+  - domain regex keyword flags
+  - cost-center / price / time aggregations
+
+### Stage 2 — Conditional duration prediction
+Predicts duration **only** for targets predicted active by Stage 1.
+
+- Uses a **per-target best regressor**
+- Current pipeline selects from:
+  - `Ridge`
+  - `LGBMRegressor`
+  - `ridge_auto`
+- Targets with too few positive training samples fall back to the **mean of positive durations**
+
+---
+
+## Repository status
 
 > [!NOTE]
-> **Data Privacy & Reproducibility:** Due to customer confidentiality and NDA restrictions, the proprietary JSON repair order dataset used to train the original model is **not** included in this public repository. 
-> 
-> This repository provides **full pipeline reproducibility on synthetic data**, while the original business results remain non-reproducible due to NDA-restricted source data. The pipeline will automatically generate and fall back to the synthetic dataset if the proprietary data is missing, allowing you to run the training and inference scripts identically to the production version.
+> **Data privacy & reproducibility**  
+> The proprietary customer dataset used for the original business results is **not included** in this public repository because of NDA and confidentiality constraints.
+>
+> This repository remains **fully reproducible on synthetic data**. You can generate synthetic orders, train the full two-stage pipeline, run tests, and execute predictions locally and in CI.
 
-### Quick Start: Running the Pipeline
+### Validated public workflow
+The public workflow supports:
 
-> [!NOTE]
-> **Windows users:** The `Makefile` targets use GNU Make syntax that is not available in PowerShell by default. Use the explicit commands below instead.
+- synthetic data generation
+- end-to-end training
+- test execution
+- batch prediction / explanation output
+- CI validation on **Python 3.11 + 3.12**
 
-1. **Create and activate a virtual environment:**
-   ```bash
-   # Linux / macOS
-   python -m venv .venv
-   source .venv/bin/activate
+---
 
-   # Windows PowerShell
-   python -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   ```
+## Quick start
 
-2. **Install dependencies:**
-   ```bash
-   # Linux / macOS
-   pip install -e .[dev]
+> [!TIP]
+> For the core pipeline, use **editable install from `pyproject.toml`**:
+>
+> ```bash
+> pip install -e .[dev]
+> ```
+>
+> `requirements.txt` is retained for compatibility with tools that expect a requirements file, but it is **not** the preferred setup path for the core workflow.
 
-   # Windows PowerShell
-   .\.venv\Scripts\python -m pip install -e .[dev]
-   ```
-   > [!NOTE]
-   > Use `pip install -e .[dev]` (editable install from `pyproject.toml`) — not `requirements.txt`, which includes heavyweight optional gbert dependencies (`torch`, `transformers`, `sentence-transformers`) that are not needed for the core pipeline.
+### 1) Create and activate a virtual environment
 
-3. **Generate synthetic data (first run only):**
-   ```bash
-   # Linux / macOS
-   python scripts/generate_synthetic_data.py
+```bash
+# Linux / macOS
+python -m venv .venv
+source .venv/bin/activate
 
-   # Windows PowerShell
-   .\.venv\Scripts\python scripts/generate_synthetic_data.py
-   ```
+# Windows PowerShell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
 
-4. **Train the model:**
-   ```bash
-   # Linux / macOS
-   python scripts/train.py --data data/synthetic_orders.json
+### 2) Install dependencies
 
-   # Windows PowerShell
-   .\.venv\Scripts\python scripts/train.py --data data/synthetic_orders.json
-   ```
-   *(Trains the full classification/regression pipeline on 500 synthetic orders.)*
+```bash
+# Linux / macOS
+pip install -e .[dev]
 
-5. **Run the test suite:**
-   ```bash
-   # Linux / macOS
-   pytest -vv
+# Windows PowerShell
+.\.venv\Scripts\python -m pip install -e .[dev]
+```
 
-   # Windows PowerShell
-   .\.venv\Scripts\pytest -vv
-   ```
+### 3) Generate synthetic data
 
-6. **Run inference & explanations:**
-   ```bash
-   # Linux / macOS
-   python scripts/predict.py --batch 10
+```bash
+# Linux / macOS
+python scripts/generate_synthetic_data.py
 
-   # Windows PowerShell
-   .\.venv\Scripts\python scripts/predict.py --batch 10
-   ```
-   *(Runs batch prediction on synthetic orders, outputting predictions and the keywords that triggered them.)*
+# Windows PowerShell
+.\.venv\Scripts\python scripts/generate_synthetic_data.py
+```
 
-### Exploring the Architecture
+### 4) Train the pipeline
 
-If you are reviewing this repository:
-1. **Start with the [Project Evolution Summary](docs/project_evolution.md)**: This document is the heart of the repository. It walks through the mindset, experiments, and math behind how the pipeline evolved from a baseline ruleset to its final state.
-2. **Read the [Model Card](MODEL_CARD.md)**: Details the intended use cases, data biases, and acknowledged edge-case failure modes.
-3. **Check `scripts/train.py` & `scripts/predict.py`**: Review the `RepairOrderTrainer` and `RepairOrderPredictor` classes to see how code is cleanly orchestrated.
-4. **Review `src/repair_order/features.py`**: See how raw, unstructured German repair texts are tokenized, embedded, and transformed into numeric feature vectors.
+```bash
+# Linux / macOS
+python scripts/train.py --data data/synthetic_orders.json
 
-### Example Prediction Output
-When running inference, the script outputs a clean explainable report showing predictions and the keywords that triggered them:
+# Windows PowerShell
+.\.venv\Scripts\python scripts/train.py --data data/synthetic_orders.json
+```
+
+### 5) Run the test suite
+
+```bash
+# Linux / macOS
+pytest -vv
+
+# Windows PowerShell
+.\.venv\Scripts\pytest -vv
+```
+
+### 6) Run batch inference
+
+```bash
+# Linux / macOS
+python scripts/predict.py --batch 10
+
+# Windows PowerShell
+.\.venv\Scripts\python scripts/predict.py --batch 10
+```
+
+---
+
+## How to review this repository in 5 minutes
+
+If you are reviewing this project for an interview, code review, or portfolio assessment, this is the fastest path:
+
+1. **Read this README first**  
+   Understand the problem, results, architecture, and public workflow.
+
+2. **Open the [Project Evolution Summary](docs/project_evolution.md)**  
+   This is the best document for understanding *why* the final pipeline looks the way it does.
+
+3. **Read the [Model Card](MODEL_CARD.md)**  
+   See intended use, limitations, risk boundaries, and known failure modes.
+
+4. **Inspect `scripts/train.py` and `scripts/predict.py`**  
+   These show how the training and inference flow is orchestrated.
+
+5. **Inspect `src/repair_order/features.py`**  
+   This is where raw JSON repair-order content becomes model-ready features.
+
+6. **Run the public synthetic workflow**  
+   Generate synthetic data, train, test, and predict locally or via CI.
+
+---
+
+## Example prediction output
+
+When running inference, the script produces an explainable report showing predicted work steps, confidence, and matched keywords.
 
 ```text
 ====================================================================
@@ -168,35 +265,80 @@ When running inference, the script outputs a clean explainable report showing pr
 ====================================================================
 ```
 
-## 📁 Repository Structure
+---
 
-```
+## Engineering quality signals
+
+This repository is intentionally structured as a **package-first, reproducible ML project** rather than a notebook dump.
+
+- shared code in `src/repair_order/`
+- editable install via `pyproject.toml`
+- synthetic-data reproducibility
+- test suite under `tests/`
+- CI workflow that runs train/test/predict
+- changelog and model card included
+- experiment history documented in `docs/` and `experiments/`
+
+---
+
+## Limitations
+
+- The original business metrics are based on **private, NDA-restricted source data**
+- Evaluation uses a **single split**, not cross-validation
+- The domain is specifically **German repair-order language and body-shop operations**
+- Rare work steps remain harder to learn because positive examples are limited
+- This is a **prototype-to-production-style portfolio project**, not a deployed SaaS system
+
+For a fuller treatment of limitations, intended use, and failure modes, see the [Model Card](MODEL_CARD.md).
+
+---
+
+## Repository structure
+
+```text
 .
-├── scripts/                     # Core runnable scripts
+├── scripts/                        # Core runnable scripts
 │   ├── generate_synthetic_data.py  # Public synthetic dataset generator
-│   ├── train.py                 # Core training pipeline (LightGBM classifiers + best regressors)
-│   ├── predict.py               # Inference script with explanations
-│   └── eda.py                   # Exploratory Data Analysis
+│   ├── train.py                    # Training pipeline
+│   ├── predict.py                  # Inference script with explanations
+│   └── eda.py                      # Exploratory data analysis
 │
-├── src/repair_order/            # Shared Python package
-│   ├── config.py                # Constants (targets, keywords, makes)
-│   ├── features.py              # Feature engineering functions
-│   └── pipeline.py              # Pipeline load + predict utilities
+├── src/repair_order/               # Shared Python package
+│   ├── config.py                   # Constants (targets, keywords, makes)
+│   ├── features.py                 # Feature engineering functions
+│   └── pipeline.py                 # Pipeline load + predict utilities
 │
-├── docs/                        # Documentation & Reports
-│   ├── project_evolution.md     # Detailed log of all experiments and optimizations
-│   ├── markdowns/               # Component-level model documentation
-│   └── assets/                  # Plots and images
+├── docs/                           # Documentation & reports
+│   ├── project_evolution.md        # Experiment history and optimization journey
+│   ├── markdowns/                  # Component-level documentation
+│   └── assets/                     # Images / plots
 │
-├── experiments/                 # Experimental pipelines (G-BERT, etc.)
-│   ├── combined_best/           # Incremental best-pipeline combinations
-│   ├── gbert_base/              # German BERT embedding replacement experiment
-│   ├── hailrepair_mae_exp/      # Skew-handling and MAE reduction strategies
-│   └── log_transform/           # Log-transformation analysis
+├── experiments/                    # Experimental pipelines
+│   ├── combined_best/
+│   ├── gbert_base/
+│   ├── hailrepair_mae_exp/
+│   └── log_transform/
 │
-├── tests/                       # Pytest verification
-├── .github/                     # CI/CD Workflows
-├── Makefile                     # Task runner
-├── pyproject.toml               # Python dependencies & config
-└── CHANGELOG.md                 # Version history
+├── tests/                          # Pytest verification
+├── .github/                        # CI workflows
+├── Makefile                        # Task runner
+├── pyproject.toml                  # Dependencies and tool config
+├── requirements.txt                # Compatibility requirements file
+├── MODEL_CARD.md                   # Model documentation and limitations
+└── CHANGELOG.md                    # Version history
 ```
+
+---
+
+## Related documentation
+
+- [Project Evolution Summary](docs/project_evolution.md)
+- [Model Card](MODEL_CARD.md)
+- [`tests/README.md`](tests/README.md)
+- [`CHANGELOG.md`](CHANGELOG.md)
+
+---
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
