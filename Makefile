@@ -10,14 +10,20 @@ help:
 
 setup:
 	python -m venv .venv
-	.venv/Scripts/python -m pip install --upgrade pip
-	.venv/Scripts/python -m pip install -e ".[dev]"
+	# Detect OS and set executable path
+	ifeq ($(OS),Windows_NT)
+		VENV_BIN=.venv\\Scripts
+	else
+		VENV_BIN=.venv/bin
+	endif
+	$(VENV_BIN)/python -m pip install --upgrade pip
+	$(VENV_BIN)/python -m pip install -e "[dev]"
 
 test:
-	.venv/Scripts/pytest tests/ -v
+	$(VENV_BIN)/pytest tests -v
 
 train:
-	.venv/Scripts/python scripts/train.py
+	$(VENV_BIN)/python scripts/train.py
 
 predict:
-	.venv/Scripts/python scripts/predict.py --batch 10
+	$(VENV_BIN)/python scripts/predict.py --batch 10

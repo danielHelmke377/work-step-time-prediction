@@ -18,6 +18,8 @@ To provide a clear distinction between what was completed during the timed asses
 
 *Note: Due to the extremely small dataset size (~500 records), all metrics reported in this repository are based on a single strict internal Train (60%) / Validation (20%) / Test (20%) split. Cross-validation was not utilized in this prototype evaluation.*
 
+*Note: The pipeline can be fully reproduced on synthetic data provided in `data/synthetic_orders.json`. The original proprietary dataset is not included due to NDA restrictions.*
+
 ---
 
 ## ⏱️ Assessment Timeline & Scope

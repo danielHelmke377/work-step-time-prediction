@@ -64,6 +64,8 @@ flowchart TD
    make train
    ```
    *(This automatically generates `data/synthetic_orders.json` if it doesn't exist, and trains the full classification/regression pipeline on it).*
+
+    > **Reproducibility Note:** The pipeline can be fully reproduced on synthetic data provided in `data/synthetic_orders.json`. The original proprietary dataset is not included due to NDA restrictions.
 3. **Run Inference & Explanations:**
    ```bash
    make predict

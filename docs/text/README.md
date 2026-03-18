@@ -7,7 +7,6 @@ are excluded from git via `.gitignore`.
 | File | Source script |
 |---|---|
 | `eda_output.txt` | `code/eda_phase1.py` |
-| `model_output.txt` | `code/model_phase2.py` |
 | `predict_demo_out.txt` | `code/predict.py --demo` |
 | `predict_batch_out.txt` | `code/predict.py --batch` |
 

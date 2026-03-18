@@ -55,8 +55,7 @@ def load_pipeline(path: Path) -> dict[str, Any]:
     """
     if not path.exists():
         raise FileNotFoundError(
-            f"Pipeline not found: {path}\n"
-            "Run model_phase2.py (or model_gbert.py for the BERT variant) first."
+            f"Pipeline not found at {path}. Ensure the pipeline has been trained and saved using the appropriate script."
         )
     with open(path, "rb") as f:
         pipeline = pickle.load(f)

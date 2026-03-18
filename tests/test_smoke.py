@@ -35,7 +35,7 @@ class TestCorePipeline:
     @pytest.fixture(scope="class")
     def pipeline(self):
         if not PIPELINE_PATH.exists():
-            pytest.skip(f"Pipeline not found at {PIPELINE_PATH} — run model_phase2.py first")
+            pytest.skip(f"Pipeline not found at {PIPELINE_PATH} — run the training script (scripts/train.py) via 'make train' first.")
         with open(PIPELINE_PATH, "rb") as f:
             return pickle.load(f)
 
@@ -46,7 +46,7 @@ class TestCorePipeline:
         assert "output_targets" in pipeline, "Pipeline missing 'output_targets'"
         assert len(pipeline["output_targets"]) == 14
 
-    def test_output_targets_names(self, pipeline):
+    def test_output_targets_names(self(self, pipeline):
         assert set(pipeline["output_targets"]) == set(EXPECTED_TARGETS)
 
     def test_classifiers_present(self, pipeline):
@@ -68,6 +68,7 @@ class TestCorePipeline:
 
     def test_thresholds_in_range(self, pipeline):
         assert "thresholds" in pipeline
+   # Removed stray file‑tree snippet from test
         for model_type, thr_dict in pipeline["thresholds"].items():
             for t, thr in thr_dict.items():
                 assert 0.0 <= thr <= 1.0, \
