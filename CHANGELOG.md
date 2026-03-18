@@ -10,7 +10,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 - `scripts/generate_synthetic_data.py` — generates a synthetic demo dataset for public reproducibility without requiring proprietary datasets.
 - `MODEL_CARD.md` — explicitly documents intended use, known failure modes (the "hail" problem), biases, and dataset constraints.
-- `pyproject.toml` — modern dependency management, replacing `requirements.txt`.
+- `pyproject.toml` — modern dependency management, complementing `requirements.txt` as the canonical install source.
 - `Makefile` — standardized pipeline execution (`make setup`, `make train`, `make predict`, `make test`).
 - `RepairOrderTrainer` class in `scripts/train.py` for encapsulated training orchestration.
 - `RepairOrderPredictor` class in `scripts/predict.py` for reusable inference.

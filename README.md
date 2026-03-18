@@ -3,11 +3,18 @@
 [![CI](https://github.com/danielHelmke377/work-step-time-prediction/actions/workflows/ci.yml/badge.svg)](https://github.com/danielHelmke377/work-step-time-prediction/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Predicts **14 binary work steps** (e.g., `bodyrepair`, `paintingSpraying`) and their **duration in hours** from unstructured JSON repair order data. 
+Predicts **14 binary work steps** (e.g., `bodyrepair`, `paintingSpraying`) and their **duration in hours** from unstructured JSON repair orders in the German automotive body-shop domain.
 
-This repository represents the **first step in prototyping the best possible model** for a work-step time prediction pipeline, evolving rapidly from a 4-hour assessment into an optimized architecture. While not yet a fully integrated production system, it demonstrates the systematic iteration required to build one.
+Built as a rapid assessment prototype and iterated to production-oriented quality over multiple experiment cycles — see the [Project Evolution Summary](docs/project_evolution.md) for the full journey from baseline to final pipeline.
 
-To see how this model evolved from a rapid 4-hour prototype to its optimized final state, explore the experimental logs inside the [Project Evolution Summary](docs/project_evolution.md).
+## 🎯 What This Demonstrates
+
+- **Multi-label → conditional regression cascade** — Stage 1 classifies which work steps occur; Stage 2 predicts duration only for active steps
+- **NLP on German domain text** — TF-IDF word + character n-grams, 17 hand-crafted regex keyword flags, cost-center features
+- **Systematic ML experimentation** — tracked evolution from rule baseline through logistic regression, LightGBM, BERT embeddings, and ensemble variants
+- **Engineering discipline** — shared `src/repair_order/` package, editable install, two-stage tests, CI on Python 3.11 + 3.12
+- **Full public reproducibility** — synthetic data generator included; CI trains and predicts end-to-end on every push
+
 
 ## 🚀 Impact & Results
 
@@ -127,7 +134,7 @@ If you are reviewing this repository:
 4. **Review `src/repair_order/features.py`**: See how raw, unstructured German repair texts are tokenized, embedded, and transformed into numeric feature vectors.
 
 ### Example Prediction Output
-When running inference via `make predict`, the script outputs a clean, explainable report detailing not only the predictions, but the rules and keywords that triggered them:
+When running inference, the script outputs a clean explainable report showing predictions and the keywords that triggered them:
 
 ```text
 ====================================================================
@@ -166,9 +173,10 @@ When running inference via `make predict`, the script outputs a clean, explainab
 ```
 .
 ├── scripts/                     # Core runnable scripts
-│   ├── eda.py                   # Exploratory Data Analysis
+│   ├── generate_synthetic_data.py  # Public synthetic dataset generator
 │   ├── train.py                 # Core training pipeline (LightGBM classifiers + best regressors)
-│   └── predict.py               # Inference script
+│   ├── predict.py               # Inference script with explanations
+│   └── eda.py                   # Exploratory Data Analysis
 │
 ├── src/repair_order/            # Shared Python package
 │   ├── config.py                # Constants (targets, keywords, makes)
