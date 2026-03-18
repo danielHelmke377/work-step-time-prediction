@@ -1,29 +1,52 @@
-.PHONY: help setup test train predict
+# Makefile — task runner for work-step-time-prediction
+#
+# Requires GNU Make and an ACTIVE virtual environment.
+# Activate first:
+#   Linux/macOS : source .venv/bin/activate
+#   Windows     : .\.venv\Scripts\Activate.ps1
+#
+# If you don't have GNU Make on Windows, use the explicit commands
+# documented in README.md Quick Start instead.
+
+.PHONY: help setup data train test predict all
+
 .DEFAULT_GOAL := help
 
 help:
-	@echo "Available commands:"
-	@echo "  make setup    - Create virtual environment and install dependencies"
-	@echo "  make test     - Run pytest suite"
-	@echo "  make train    - Run the core training pipeline (Stage 1 & Stage 2)"
-	@echo "  make predict  - Run inference using the saved pipeline"
+	@echo ""
+	@echo "  work-step-time-prediction — available Make targets"
+	@echo "  ─────────────────────────────────────────────────────"
+	@echo "  make setup    Create .venv and install core + dev deps"
+	@echo "  make data     Generate 500-order synthetic dataset"
+	@echo "  make train    Train the two-stage pipeline (synthetic data)"
+	@echo "  make test     Run the full pytest suite (-vv)"
+	@echo "  make predict  Run batch inference on 10 synthetic orders"
+	@echo "  make all      data → train → test → predict (full workflow)"
+	@echo ""
 
+# ── Environment setup ────────────────────────────────────────────────────────
 setup:
 	python -m venv .venv
-	# Detect OS and set executable path
-	ifeq ($(OS),Windows_NT)
-		VENV_BIN=.venv\\Scripts
-	else
-		VENV_BIN=.venv/bin
-	endif
-	$(VENV_BIN)/python -m pip install --upgrade pip
-	$(VENV_BIN)/python -m pip install -e "[dev]"
+	python -m pip install --upgrade pip
+	pip install -e ".[dev]"
+	@echo ""
+	@echo "  ✓ Environment ready. Activate it before running other targets:"
+	@echo "    Linux/macOS : source .venv/bin/activate"
+	@echo "    Windows     : .\.venv\Scripts\Activate.ps1"
+	@echo ""
 
-test:
-	$(VENV_BIN)/pytest tests -v
+# ── Workflow targets (require active venv) ───────────────────────────────────
+data:
+	python scripts/generate_synthetic_data.py
 
 train:
-	$(VENV_BIN)/python scripts/train.py
+	python scripts/train.py --data data/synthetic_orders.json
+
+test:
+	pytest -vv
 
 predict:
-	$(VENV_BIN)/python scripts/predict.py --batch 10
+	python scripts/predict.py --batch 10
+
+# ── Full end-to-end workflow ─────────────────────────────────────────────────
+all: data train test predict

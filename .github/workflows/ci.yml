@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: Smoke Tests (Python ${{ matrix.python-version }})
+    name: Full Pipeline (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
 
     strategy:
@@ -25,20 +25,30 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
 
-      - name: Install core dependencies
+      - name: Install core + dev dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
 
-      - name: Run smoke tests
-        run: pytest tests/ -v --tb=short
-
-      - name: Check import of shared package
+      - name: Check package imports
         run: |
           python -c "
           from repair_order.config import OUTPUT_TARGETS, KEYWORD_FLAGS
           from repair_order.features import preprocess_positions, build_order_text
+          from repair_order.pipeline import load_pipeline, predict_order
           assert len(OUTPUT_TARGETS) == 14
           assert len(KEYWORD_FLAGS) == 17
           print('repair_order package imports OK')
           "
+
+      - name: Run smoke tests
+        run: pytest -vv --tb=short
+
+      - name: Generate synthetic data
+        run: python scripts/generate_synthetic_data.py
+
+      - name: Train on synthetic data
+        run: python scripts/train.py --data data/synthetic_orders.json
+
+      - name: Run batch prediction
+        run: python scripts/predict.py --batch 5

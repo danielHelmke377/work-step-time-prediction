@@ -55,24 +55,68 @@ flowchart TD
 
 ### Quick Start: Running the Pipeline
 
-1. **Install Dependencies:**
+> [!NOTE]
+> **Windows users:** The `Makefile` targets use GNU Make syntax that is not available in PowerShell by default. Use the explicit commands below instead.
+
+1. **Create and activate a virtual environment:**
    ```bash
-   pip install -r requirements.txt
+   # Linux / macOS
+   python -m venv .venv
+   source .venv/bin/activate
+
+   # Windows PowerShell
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   # Linux / macOS
+   pip install -e .[dev]
+
+   # Windows PowerShell
+   .\.venv\Scripts\python -m pip install -e .[dev]
    ```
    > [!NOTE]
-   > `requirements.txt` is generated from `pyproject.toml` to ensure the exact dependency set. It can be regenerated with `pip freeze > requirements.txt` or using `poetry export`.
-2. **Train the Model:**
-   ```bash
-   make train
-   ```
-   *(This automatically generates `data/synthetic_orders.json` if it doesn't exist, and trains the full classification/regression pipeline on it.)*
+   > Use `pip install -e .[dev]` (editable install from `pyproject.toml`) — not `requirements.txt`, which includes heavyweight optional gbert dependencies (`torch`, `transformers`, `sentence-transformers`) that are not needed for the core pipeline.
 
-    > **Reproducibility Note:** The pipeline can be fully reproduced on synthetic data provided in `data/synthetic_orders.json`. The original proprietary dataset is not included due to NDA restrictions.
-3. **Run Inference & Explanations:**
+3. **Generate synthetic data (first run only):**
    ```bash
-   make predict
+   # Linux / macOS
+   python scripts/generate_synthetic_data.py
+
+   # Windows PowerShell
+   .\.venv\Scripts\python scripts/generate_synthetic_data.py
    ```
-   *(Runs prediction on a demo synthetic order, outputting the predictions and the exact keywords that triggered them).*
+
+4. **Train the model:**
+   ```bash
+   # Linux / macOS
+   python scripts/train.py --data data/synthetic_orders.json
+
+   # Windows PowerShell
+   .\.venv\Scripts\python scripts/train.py --data data/synthetic_orders.json
+   ```
+   *(Trains the full classification/regression pipeline on 500 synthetic orders.)*
+
+5. **Run the test suite:**
+   ```bash
+   # Linux / macOS
+   pytest -vv
+
+   # Windows PowerShell
+   .\.venv\Scripts\pytest -vv
+   ```
+
+6. **Run inference & explanations:**
+   ```bash
+   # Linux / macOS
+   python scripts/predict.py --batch 10
+
+   # Windows PowerShell
+   .\.venv\Scripts\python scripts/predict.py --batch 10
+   ```
+   *(Runs batch prediction on synthetic orders, outputting predictions and the keywords that triggered them.)*
 
 ### Exploring the Architecture
 

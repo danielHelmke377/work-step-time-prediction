@@ -1,10 +1,20 @@
 """
 conftest.py — pytest configuration
-Adds the src/ directory to sys.path so that `repair_order` is importable
-without requiring `pip install -e .`
+
+Adds ``src/`` to ``sys.path`` so that the ``repair_order`` package is
+importable by editors, type-checkers, and testing tools that do not
+activate the virtual environment automatically.
+
+The canonical installation is::
+
+    pip install -e .[dev]
+
+which makes ``repair_order`` importable without this shim. This file is
+retained as a backstop for CI runners and IDE terminals that bypass the
+editable install.
 """
 import sys
 from pathlib import Path
 
-# Insert src/ at the front of sys.path so tests can import repair_order
+# Prepend src/ so repair_order is importable without a full editable install
 sys.path.insert(0, str(Path(__file__).parent / "src"))

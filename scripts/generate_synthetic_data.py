@@ -124,16 +124,16 @@ def generate_order(force_target=None):
     }
 
 def main():
-    print("Generating synthetic dataset (250 orders)...")
+    print("Generating synthetic dataset (500 orders)...")
     dataset = []
     
-    # Guarantee at least 5 positive examples of each target to prevent split errors
+    # Guarantee at least 10 positive examples of each target to prevent split errors
     for tgt in TARGETS:
-        for _ in range(7):  # Increase to 7 to be extremely safe for splits
+        for _ in range(10):  # 10 × 14 = 140 guaranteed, rest filled randomly
             dataset.append(generate_order(force_target=tgt))
             
     # Fill the rest with random data
-    while len(dataset) < 250:
+    while len(dataset) < 500:
         dataset.append(generate_order())
         
     random.shuffle(dataset)

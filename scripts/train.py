@@ -1,12 +1,12 @@
-"""
-train.py
-========
+"""train.py
+==========
 Fully mixed pipeline — best-per-target classifier AND best-per-target regressor.
 
 Stage 1 — Classifiers (NO oversampling, class weights only):
-  Both LogReg and LightGBM are trained per target.
-  Thresholds are F1-tuned on the validation set.
-  The model with higher val F1 is used for test-set predictions.
+  LightGBM classifiers are trained per target. Thresholds are F1‑tuned on the validation set.
+  The model with higher val F1 is used for test‑set predictions.
+
+Optional: use `--use-logreg` flag to also train LogisticRegression classifiers per target and select the best.
 
 Stage 2 — Regressors (same as model_best_per_target_reg.py):
   Winner from markdowns/regressor_selection.md per target.
@@ -130,11 +130,20 @@ class RepairOrderTrainer:
         complexity_band = pd.cut(n_active, bins=[-1, 3, 6, 9, 100],
                                  labels=["low", "medium", "high", "very_high"])
         indices = np.arange(len(df_num))
-        idx_trainval, idx_test = train_test_split(
-            indices, test_size=0.20, random_state=self.RANDOM_STATE, stratify=complexity_band)
-        idx_train, idx_val = train_test_split(
-            idx_trainval, test_size=0.25, random_state=self.RANDOM_STATE,
-            stratify=complexity_band[idx_trainval])
+        # Attempt stratified split; fall back to random split when a bin
+        # has too few samples (e.g. on small synthetic datasets).
+        try:
+            idx_trainval, idx_test = train_test_split(
+                indices, test_size=0.20, random_state=self.RANDOM_STATE, stratify=complexity_band)
+            idx_train, idx_val = train_test_split(
+                idx_trainval, test_size=0.25, random_state=self.RANDOM_STATE,
+                stratify=complexity_band[idx_trainval])
+        except ValueError:
+            print("  [warn] Stratified split failed (too few samples per bin) — using random split.")
+            idx_trainval, idx_test = train_test_split(
+                indices, test_size=0.20, random_state=self.RANDOM_STATE)
+            idx_train, idx_val = train_test_split(
+                idx_trainval, test_size=0.25, random_state=self.RANDOM_STATE)
 
         self.tfidf_word = TfidfVectorizer(ngram_range=(1, 2), max_features=2000, min_df=2,
                                           sublinear_tf=True, analyzer="word",
@@ -191,7 +200,7 @@ class RepairOrderTrainer:
 
             self.clf_best[t], self.clf_thr[t], self.clf_choice[t] = lc, thr_lc, "lgbm"
 
-            print(f"  {t:<22}  lgbm F1={f1_lc:.4f}  → {self.clf_choice[t]}")
+            print(f"  {t:<22}  lgbm F1={f1_lc:.4f}  -> {self.clf_choice[t]}")
 
     def _make_lgbm_reg(self, n_pos):
         return lgb.LGBMRegressor(
@@ -260,11 +269,11 @@ class RepairOrderTrainer:
                 if mae_wins < mae_plain:
                     self.reg_models[t] = m_wins
                     self.reg_choice[t] = f"ridge+wins(cap={cap:.0f})"
-                    print(f"  [ridge+win] {t:<22}  plain={mae_plain:.2f} wins={mae_wins:.2f} → winsorise")
+                    print(f"  [ridge+win] {t:<22}  plain={mae_plain:.2f} wins={mae_wins:.2f} -> winsorise")
                 else:
                     self.reg_models[t] = m_plain
                     self.reg_choice[t] = "ridge"
-                    print(f"  [ridge    ] {t:<22}  plain={mae_plain:.2f} wins={mae_wins:.2f} → plain")
+                    print(f"  [ridge    ] {t:<22}  plain={mae_plain:.2f} wins={mae_wins:.2f} -> plain")
 
     def evaluate_and_save_report(self):
         section("STEP 4 — Evaluate: fully mixed CLF + fully mixed REG")

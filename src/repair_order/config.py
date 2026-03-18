@@ -1,8 +1,8 @@
 """
 config.py — Shared constants for the Work Step Time Prediction project.
 =====================================================================
-# All scripts (train.py, predict.py, gbert equivalents) should import constants from here to avoid drift.
-import their constants from here to avoid copy-paste drift.
+All scripts (train.py, predict.py, gbert equivalents) import their
+constants from here to avoid copy-paste drift.
 """
 
 # 14 output work-step targets (order matters for display)

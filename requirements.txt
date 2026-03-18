@@ -1,3 +1,11 @@
+# Core runtime dependencies (mirrors pyproject.toml [project.dependencies])
+# Install via: pip install -e .[dev]
+#
+# This file is kept for tools that read requirements.txt directly (e.g., Dependabot).
+# It intentionally excludes the optional gbert extras (torch, transformers,
+# sentence-transformers). To use the gbert experiment, install:
+#   pip install -e .[gbert]
+
 numpy>=1.24
 pandas>=2.0
 scikit-learn>=1.3
@@ -5,7 +13,6 @@ scipy>=1.11
 lightgbm>=4.0
 matplotlib>=3.7
 seaborn>=0.13
-torch>=2.0
-transformers>=4.38
-sentence-transformers>=2.7
+
+# Dev / test
 pytest>=7.0
