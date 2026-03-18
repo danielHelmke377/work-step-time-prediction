@@ -7,7 +7,7 @@ dataset or training to run — only the saved pipeline pickle and
 BERT embeddings (if the gbert_base experiment has been run).
 
 Run with:
-    pytest tests/ -v
+    pytest -vv
 """
 
 import pickle

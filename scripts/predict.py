@@ -27,8 +27,9 @@ from pathlib import Path
 
 import numpy as np
 
-from repair_order.config import KEYWORD_FLAGS, TARGET_LABELS, TARGET_KEYWORD_MAP
-from repair_order.pipeline import load_pipeline as lib_load_pipeline, predict_order
+from repair_order.config import KEYWORD_FLAGS, TARGET_KEYWORD_MAP, TARGET_LABELS
+from repair_order.pipeline import load_pipeline as lib_load_pipeline
+from repair_order.pipeline import predict_order
 
 warnings.filterwarnings("ignore", message="X does not have valid feature names")
 
