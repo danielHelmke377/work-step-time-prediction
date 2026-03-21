@@ -565,6 +565,22 @@ Given a second pass with more time:
 - **Add prevalence drift alerting to the monitoring layer.** The current snapshot flags drift but doesn't automate the alert. In production, a step whose prevalence shifts >10pp silently is a real risk.
 - **Use property-based testing for the feature engineering functions.** The current `test_functional.py` is end-to-end but doesn't directly verify edge-case inputs to `features.py` (e.g. empty text, zero-price positions, unknown cost-centers).
 
+### What a production-ready version would require
+
+In a real production context — not a portfolio prototype — I would invest significantly more time in two areas:
+
+**Feature engineering depth:**
+- Systematically test more feature combinations: position-level n-gram vs. order-level, character n-gram ranges, lemmatisation for German text, named-entity features for car makes and part codes
+- Evaluate whether cost-center aggregation features add signal beyond what TF-IDF captures, or whether they introduce noise on unseen cost-center labels
+- Run ablation studies to understand which feature groups contribute most to each target individually — the 14 targets likely have very different optimal feature sets
+
+**Model architecture exploration:**
+- More rigorous hyperparameter search (Optuna or Bayesian) for LightGBM per-target rather than shared defaults
+- Evaluate calibrated classifiers: the current raw probability outputs are used as-is; Platt scaling or isotonic regression could improve threshold tuning quality
+- Revisit BERT-based approaches with a larger labelled dataset — on 500 orders the vocabulary is too small for embedding models to generalise well, but this would change at 5,000+ orders
+- Evaluate multi-task learning to share representations across related targets (e.g. `paintingPreparation` and `paintingSpraying` are strongly correlated) instead of training 14 fully independent models
+- Test ensemble stacking at Stage 1 rather than selecting a single best classifier per target
+
 ---
 
 ## Repository structure
