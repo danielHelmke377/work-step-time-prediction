@@ -300,6 +300,8 @@ The API is now live at `http://localhost:8000`. Open `http://localhost:8000/docs
 
 ## API quick reference
 
+![API request/response demo — POST /predict returning predicted work steps and hours](docs/assets/api_demo.png)
+
 ### Endpoints
 
 | Method | Path | Purpose |
