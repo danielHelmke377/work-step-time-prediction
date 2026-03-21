@@ -5,9 +5,22 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)](pyproject.toml)
 
-Two-stage machine learning pipeline for predicting **14 repair work steps** and their **execution time in hours** from unstructured JSON repair orders in the German automotive body-shop domain.
+A portfolio-grade ML engineering project demonstrating the **full stack** of a production-oriented prediction system — from raw data and model training to a Dockerised REST API, automated tests, a monitoring snapshot, and a structured model promotion workflow.
 
-Built as a rapid assessment prototype and iterated toward production-oriented quality through multiple experiment cycles. See the [Project Evolution Summary](docs/project_evolution.md) for the full path from baseline to final pipeline.
+The domain: predicting **14 repair work steps** and their **execution time in hours** from unstructured JSON repair orders in the German automotive body-shop industry.
+
+> Built from a rapid business assessment prototype and iterated toward production-oriented quality. See the [Project Evolution Summary](docs/project_evolution.md) for the full experiment path.
+
+## What you can run right now
+
+```bash
+make data          # generate synthetic training data
+make train         # train the two-stage pipeline + write metrics.json
+make test          # 37 tests across 4 test files (smoke · functional · API · lifecycle)
+make serve         # start the FastAPI service → http://localhost:8000/docs
+make docker-serve  # same, but containerised
+make train-challenger && make promote-dry  # demo the champion-challenger lifecycle
+```
 
 ---
 
@@ -73,6 +86,19 @@ The final prototype performs strongly for the target business context, with eval
 > [!IMPORTANT]
 > All reported metrics come from a **single strict train/validation/test split** with a 20% hold-out test set.  
 > Cross-validation was **not** used in this prototype evaluation.
+
+---
+
+## Engineering showcase — key takeaways
+
+This repository is designed to demonstrate **practical ML engineering skills** beyond just model performance:
+
+- **End-to-end ML system** — raw JSON in, REST predictions out: feature engineering → training → serialised artifact → FastAPI → Docker container
+- **Tested inference API** — 23 integration tests covering all 3 endpoints, validated schemas, degraded-mode graceful startup, Swagger UI
+- **Champion-challenger lifecycle** — explicit 3-rule promotion logic (`make promote`), structured decision artifacts, archiving — no external registry needed
+- **Production operational patterns** — health-check contract, artifact metadata sidecar, monitoring snapshot generation, containerised serving
+- **Reproducible public workflow** — synthetic data generator means the full train → test → predict path runs for anyone, in CI and locally
+- **Systematic experimentation** — documented path from rule baseline through logistic regression, LightGBM, and BERT embedding variants to the final pipeline
 
 ---
 
@@ -448,28 +474,33 @@ A `--dry-run` flag prints the report to stdout without touching any files.
 
 ## How to review this repository in 5 minutes
 
-If you are reviewing this project for an interview, code review, or portfolio assessment, this is the fastest path:
+If you are reviewing this project for an interview, code review, or portfolio assessment, here is the fastest path to the most signal-dense files:
 
-1. **Read this README first**  
-   Understand the problem, results, architecture, and public workflow.
+1. **Read this README** — problem, results, architecture, and live commands overview.
 
-2. **Open the [Project Evolution Summary](docs/project_evolution.md)**  
-   This is the best document for understanding *why* the final pipeline looks the way it does.
+2. **Open [`app/main.py`](app/main.py) and [`app/predictor.py`](app/predictor.py)**  
+   Shows the FastAPI app structure, lifespan model loading, singleton predictor, degraded-mode startup, and Pydantic v2 schemas.
 
-3. **Read the [Model Card](MODEL_CARD.md)**  
-   See intended use, limitations, risk boundaries, and known failure modes.
+3. **Open [`scripts/promote.py`](scripts/promote.py)**  
+   Shows the champion-challenger comparison: 3 explicit promotion rules, dry-run mode, structured JSON + Markdown decision artifacts, archive management.
 
-4. **Browse the API at `http://localhost:8000/docs`**  
-   After `make train && make serve`, the Swagger UI shows the full contract interactively.
+4. **Open [`scripts/train.py`](scripts/train.py)**  
+   Shows training orchestration, TF-IDF + feature engineering, per-target threshold tuning, and artifact writing pattern.
 
-5. **Inspect `scripts/train.py` and `app/predictor.py`**  
-   These show how training and inference are orchestrated.
+5. **Browse `http://localhost:8000/docs`** after `make train && make serve`  
+   Swagger UI displays the full API contract interactively.
 
-6. **Inspect `src/repair_order/features.py`**  
-   This is where raw JSON repair-order content becomes model-ready features.
+6. **Scan the [monitoring snapshot](docs/markdowns/monitoring_snapshot.md)**  
+   Shows the post-deployment quality reporting layer.
 
-7. **Run the public synthetic workflow**  
-   Generate synthetic data, train, test, and predict locally or via CI.
+7. **Read the [Project Evolution Summary](docs/project_evolution.md)**  
+   Best document for understanding *why* the final pipeline looks the way it does — experiment decisions, trade-offs, and lessons.
+
+8. **Read the [Model Card](MODEL_CARD.md)**  
+   Intended use, limitations, known failure modes, risk boundaries.
+
+9. **Run the public synthetic workflow**  
+   `make data && make train && make test && make serve` — the entire stack is reproducible locally.
 
 ---
 
