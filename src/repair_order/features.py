@@ -4,8 +4,8 @@ features.py — Shared feature engineering for Work Step Time Prediction.
 Functions for preprocessing order positions, building the combined order
 text string, and computing the numeric/keyword/make feature vector.
 
-These functions are used by train.py, predict.py, and the gbert_base equivalents —
-importing from here eliminates copy-paste drift.
+These functions are shared across training, batch inference, and the API
+serving layer — a single source of truth that eliminates copy-paste drift.
 
 Usage:
     from repair_order.features import (

@@ -45,10 +45,16 @@ from sklearn.model_selection import train_test_split
 from repair_order.config import OUTPUT_TARGETS
 from repair_order.features import build_numeric_features, build_order_text, preprocess_positions
 
-warnings.filterwarnings("ignore")
+# Suppress LightGBM verbose output during cross-target training loops.
+warnings.filterwarnings("ignore", category=UserWarning, module="lightgbm")
+warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
 
 BAR = "=" * 70
-def section(t): print(f"\n{BAR}\n  {t}\n{BAR}")
+
+
+def section(title: str) -> None:
+    """Print a bold section header to stdout during training."""
+    print(f"\n{BAR}\n  {title}\n{BAR}")
 
 
 class RepairOrderTrainer:
