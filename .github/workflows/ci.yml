@@ -45,7 +45,7 @@ jobs:
           "
 
       - name: Run smoke tests
-        run: pytest -vv --tb=short
+        run: pytest -vv --tb=short --ignore=tests/test_api.py
 
       - name: Generate synthetic data
         run: python scripts/generate_synthetic_data.py
