@@ -47,3 +47,7 @@ text/*.txt
 # ── Environment config ────────────────────────────────────────────────────────
 .env
 .env.local
+
+models/archive/*/two_stage_pipeline.pkl
+models/challenger/*.pkl
+test_output.txt
