@@ -33,6 +33,10 @@ make docker-serve  # same, but containerised
 make train-challenger && make promote-dry  # demo the champion-challenger lifecycle
 ```
 
+> **Windows (PowerShell) users:** `make` requires GNU Make. Run the underlying commands directly instead — see the **Quick start** section below for the equivalent `python` / `uvicorn` commands.
+
+---
+
 ## ML approach
 
 - **Multi-label → conditional regression cascade**  
