@@ -1,0 +1,52 @@
+# Python / virtual environments
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Data files (can be large; generate with scripts/generate_synthetic_data.py)
+data/
+
+# Experiment directories (not needed in the serving image)
+experiments/
+
+# Test and dev artefacts
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Documentation source (not needed at runtime)
+docs/
+tests/
+
+# Editor / OS noise
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Git metadata
+.git/
+.gitignore
+.gitattributes
+
+# CI and tooling config
+.github/
+
+# Sensitive files
+.env
+*.env
+secrets/
+
+# Compiled binaries / wheels that shouldn't leak into the image
+*.so
+*.dylib
+*.dll
+
+# Anything that shouldn't end up overriding the builder-layer install
+requirements.txt

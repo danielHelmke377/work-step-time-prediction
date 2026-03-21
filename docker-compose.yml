@@ -1,0 +1,37 @@
+# docker-compose.yml — local development and demo workflow
+#
+# Quickstart:
+#   docker compose up --build
+#
+# The trained pipeline artifact (models/) must exist on the host before
+# starting the service. Run the training step first:
+#   make data && make train          # inside a local venv
+#
+# The service starts in degraded mode (GET /health → 503) if models/ is
+# absent or empty. This is intentional — it mirrors the production contract.
+
+services:
+  api:
+    build:
+      context: .
+      target: runtime
+    image: work-step-time-prediction:latest
+    container_name: wst_prediction_api
+    ports:
+      - "${PORT:-8000}:${PORT:-8000}"
+    volumes:
+      # Mount the host models/ directory so the trained artifact is available
+      # without being baked into the image. Remove this line and uncomment the
+      # COPY in the Dockerfile if you want a self-contained demo image.
+      - ./models:/app/models:ro
+    environment:
+      - PORT=${PORT:-8000}
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:${PORT:-8000}/health')"]
+      interval: 15s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    restart: unless-stopped

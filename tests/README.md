@@ -7,7 +7,7 @@ Run with:
 pytest -vv
 ```
 
-Tests are split into two files with complementary coverage:
+Tests are split across four files:
 
 ---
 
@@ -44,6 +44,37 @@ and then exercise the resulting pipeline through the `repair_order` package API.
 
 ---
 
+## `test_api.py` — API Integration Tests
+
+Validate the FastAPI inference service end-to-end.
+Tests start the API with the trained champion model and exercise all three endpoints.
+
+| Test class | What it checks |
+|---|---|
+| `TestHealth` | `/health` returns 200, correct status/model_loaded/n_targets fields |
+| `TestModelLoaded` | `/predict` returns correct shape, all 14 targets, required fields, non-negative hours, elapsed_ms |
+| `TestPredictEdgeCases` | Empty positions, single position, explain flag, missing optional fields |
+| `TestModelInfo` | `/model-info` returns version, targets list, feature groups |
+| `TestErrorHandling` | Validation errors → 422, unknown cost_center handled |
+
+---
+
+## `test_lifecycle.py` — Champion-Challenger Lifecycle Tests
+
+Validate the model promotion workflow without training.
+All tests run in milliseconds using synthetic metric fixtures.
+
+| Test | What it checks |
+|---|---|
+| Error handling | Missing champion/challenger, malformed JSON, missing required keys |
+| Rule evaluation | R1/R2/R3 pass and fail boundaries with known metrics |
+| Dry-run guarantee | No files written in dry-run mode |
+| Promotion flow | Decision artifacts created, archive slot populated |
+| Rejection flow | Champion artifacts unchanged when rules fail |
+| Report content | Generated markdown includes all expected sections |
+
+---
+
 ## Coverage Summary
 
 | Area | Covered by |
@@ -51,5 +82,7 @@ and then exercise the resulting pipeline through the `repair_order` package API.
 | Package imports | CI import check (`ci.yml`) |
 | Artefact structure / integrity | `test_smoke.py` |
 | Full synthetic train + predict | `test_functional.py` |
+| API endpoints (health / predict / model-info) | `test_api.py` (23 tests) |
+| Champion-challenger lifecycle | `test_lifecycle.py` (14 tests) |
 | gbert experiment artefacts | `test_smoke.py::TestGbertExperiment` (skipped if absent) |
 | Core model logic | *(not unit-tested — metrics are validated in `docs/markdowns/training_results.md`)* |

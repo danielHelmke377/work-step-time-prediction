@@ -329,6 +329,18 @@ class RepairOrderTrainer:
         fw_acc = round(sum(freq_weights[t] * df.loc[t, "Accuracy"] for t in OUTPUT_TARGETS) / total_fw, 4)
         fw_mae = round(sum(freq_weights[t] * df.loc[t, "MAE"]      for t in OUTPUT_TARGETS) / total_fw, 2)
 
+        # Store metrics on self for save_metrics_json() to consume later
+        self.eval_summary = {
+            "macro_f1":       macro_f1,
+            "macro_recall":   macro_rec,
+            "macro_accuracy": macro_acc,
+            "macro_mae_hrs":  macro_mae,
+            "fw_f1":          fw_f1,
+            "fw_recall":      fw_rec,
+            "fw_accuracy":    fw_acc,
+            "fw_mae_hrs":     fw_mae,
+        }
+
         print(f"\n  {'Target':<22} {'clf':>6} {'reg':>18} {'freq_w':>6} {'Acc':>7} {'F1':>7} {'Rec':>7} {'MAE':>7}")
         print("  " + "-" * 83)
         for t in OUTPUT_TARGETS:
@@ -420,6 +432,78 @@ training samples fall back to the mean of positives.
         print(f"  [saved] {pkl_path}")
         print("  Done.")
         
+    def save_model_info(self):
+        """
+        Write models/model_info.json alongside the pipeline pickle.
+
+        This sidecar file is read by the serving layer (GET /model-info) to
+        expose recruiter-friendly metadata without unpickling the artifact.
+        """
+        section("STEP 7 — Save model_info.json")
+
+        try:
+            from importlib.metadata import version as pkg_version
+            model_version = pkg_version("repair-order")
+        except Exception:  # noqa: BLE001
+            model_version = "unknown"
+
+        info = {
+            "model_version": model_version,
+            "trained_on": date.today().isoformat(),
+            "artifact_name": "two_stage_pipeline.pkl",
+            "task": (
+                "Two-stage ML pipeline predicting 14 automotive body-shop work steps "
+                "(binary occurrence + conditional duration in hours) from raw repair orders."
+            ),
+            "n_targets": len(OUTPUT_TARGETS),
+            "targets": OUTPUT_TARGETS,
+            "stage1": "LGBMClassifier (independent per target, F1-tuned thresholds)",
+            "stage2": "per-target best regressor (LGBMRegressor / Ridge / mean_fallback)",
+            "feature_groups": [
+                "tfidf_word_ngrams",
+                "tfidf_char_ngrams",
+                "numeric_aggregates",
+                "keyword_flags",
+                "make_encoding",
+            ],
+        }
+
+        info_path = self.models_dir / "model_info.json"
+        with open(info_path, "w", encoding="utf-8") as fh:
+            json.dump(info, fh, indent=2)
+        print(f"  [saved] {info_path}")
+
+    def save_metrics_json(self):
+        """
+        Write metrics.json alongside model_info.json.
+
+        This file is consumed by scripts/promote.py for champion-challenger
+        comparisons.  It captures the already-computed aggregate and per-target
+        evaluation metrics so no second evaluation pass is needed.
+        """
+        section("STEP 8 — Save metrics.json")
+
+        if not hasattr(self, "eval_summary") or self.report_df is None:
+            print("  [skipped] evaluate_and_save_report() must be called first.")
+            return
+
+        per_target = {}
+        for t in OUTPUT_TARGETS:
+            r = self.report_df.loc[t]
+            per_target[t] = {
+                "f1":       round(float(r["F1"]), 4),
+                "recall":   round(float(r["Recall"]), 4),
+                "accuracy": round(float(r["Accuracy"]), 4),
+                "mae_hrs":  round(float(r["MAE"]), 2),
+            }
+
+        metrics = {**self.eval_summary, "per_target": per_target}
+
+        metrics_path = self.models_dir / "metrics.json"
+        with open(metrics_path, "w", encoding="utf-8") as fh:
+            json.dump(metrics, fh, indent=2)
+        print(f"  [saved] {metrics_path}")
+
     def run(self):
         """Execute the full training pipeline."""
         self.load_and_preprocess()
@@ -427,6 +511,8 @@ training samples fall back to the mean of positives.
         self.train_regressors()
         self.evaluate_and_save_report()
         self.save_pipeline()
+        self.save_model_info()
+        self.save_metrics_json()
 
 
 def main():
@@ -443,12 +529,22 @@ def main():
         "--data", type=str, default=str(default_data),
         help="Path to a training orders JSON file (default: data/synthetic_orders.json).",
     )
+    parser.add_argument(
+        "--target-dir", type=str, default=None,
+        help=(
+            "Directory to write pipeline artifacts into "
+            "(default: repo_root/models/).  "
+            "Pass 'models/challenger' to train a challenger model without "
+            "overwriting the live champion."
+        ),
+    )
     args, _ = parser.parse_known_args()
-    
+
     data_path = Path(args.data)
     md_dir = root / "docs" / "markdowns"
-    models_dir = root / "models"
-    
+    models_dir = Path(args.target_dir) if args.target_dir else root / "models"
+    models_dir.mkdir(parents=True, exist_ok=True)
+
     trainer = RepairOrderTrainer(data_path, md_dir, models_dir)
     trainer.run()
 

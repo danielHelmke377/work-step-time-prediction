@@ -1,7 +1,9 @@
 # Work Step Time Prediction Pipeline
 
 [![CI](https://github.com/danielHelmke377/work-step-time-prediction/actions/workflows/ci.yml/badge.svg)](https://github.com/danielHelmke377/work-step-time-prediction/actions/workflows/ci.yml)
+[![API Tests](https://img.shields.io/badge/API%20tests-23%20passing-brightgreen)](tests/test_api.py)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)](pyproject.toml)
 
 Two-stage machine learning pipeline for predicting **14 repair work steps** and their **execution time in hours** from unstructured JSON repair orders in the German automotive body-shop domain.
 
@@ -30,6 +32,12 @@ That design keeps the problem aligned with the real business workflow and avoids
 
 - **Systematic ML experimentation**  
   Tracks the path from baseline rules through logistic regression, LightGBM, BERT-embedding variants, and combined best-pipeline experiments.
+
+- **Production-style inference API** *(new)*  
+  FastAPI service with validated Pydantic v2 schemas, degraded-mode startup, `/health` + `/predict` + `/model-info` endpoints, and a 23-test integration suite.
+
+- **Model lifecycle (champion–challenger)**  
+  File-based lifecycle layer: train a challenger, evaluate against 3 explicit promotion rules, promote or reject with a structured decision report — no external registry.
 
 - **Engineering discipline**  
   Shared `src/repair_order/` package, editable install, tests, CI on Python 3.11 + 3.12, reproducible public workflow on synthetic data.
@@ -111,6 +119,42 @@ Predicts duration **only** for targets predicted active by Stage 1.
 
 ---
 
+## End-to-end system overview
+
+The project covers the complete lifecycle from raw data to a served REST API:
+
+```mermaid
+flowchart LR
+    subgraph Training ["🔧  Training  (scripts/train.py)"]
+        D["Repair Orders\n(JSON)"] --> FE["Feature Engineering\n(src/repair_order/features.py)"]
+        FE --> C1["Stage 1: LGBMClassifier\n× 14 targets"]
+        FE --> C2["Stage 2: per-target regressor\n(Ridge / LGBM / mean fallback)"]
+        C1 --> PKL["two_stage_pipeline.pkl"]
+        C2 --> PKL
+        PKL --> META["model_info.json\n(version, date, targets)"]
+    end
+
+    subgraph CI ["⚙️  CI  (GitHub Actions)"]
+        CI1["pytest — unit + smoke + functional\n+ API tests + lifecycle tests"]
+    end
+
+    subgraph API ["🚀  Inference API  (app/)"]
+        PKL2["two_stage_pipeline.pkl"] --> PRED["PipelinePredictor\nsingleton"]
+        META2["model_info.json"] --> PRED
+        PRED --> H["GET /health\n200 OK / 503 degraded"]
+        PRED --> M["GET /model-info\nversion · targets · config"]
+        PRED --> P["POST /predict\nPydantic-validated\nrequest → response"]
+    end
+
+    PKL -.->|artifact| PKL2
+    META -.->|sidecar| META2
+    Training -.->|validates| CI
+```
+
+> Swagger UI is available at `http://localhost:8000/docs` when the service is running.
+
+---
+
 ## Repository status
 
 > [!NOTE]
@@ -123,9 +167,10 @@ Predicts duration **only** for targets predicted active by Stage 1.
 The public workflow supports:
 
 - synthetic data generation
-- end-to-end training
-- test execution
+- end-to-end training (champion + challenger)
+- test execution (23 API + 14 lifecycle tests)
 - batch prediction / explanation output
+- model lifecycle: dry-run and promotion workflow
 - CI validation on **Python 3.11 + 3.12**
 
 ---
@@ -203,6 +248,202 @@ python scripts/predict.py --batch 10
 .\.venv\Scripts\python scripts/predict.py --batch 10
 ```
 
+### 7) Start the inference API
+
+```bash
+# Install serving dependencies (FastAPI + Uvicorn) — one-time
+pip install -e .[serve]
+
+# Linux / macOS
+uvicorn app.main:app --reload
+# or:
+make serve
+
+# Windows PowerShell
+.\.venv\Scripts\uvicorn app.main:app --reload
+```
+
+The API is now live at `http://localhost:8000`. Open `http://localhost:8000/docs` for the interactive Swagger UI.
+
+---
+
+## API quick reference
+
+### Endpoints
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/health` | Liveness + model-readiness check |
+| `POST` | `/predict` | Predict work steps and durations for one repair order |
+| `GET` | `/model-info` | Pipeline version, targets, and feature configuration |
+
+### Example request
+
+```bash
+curl -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{
+    "make": "VOLKSWAGEN",
+    "calculated_positions": [
+      {"text": "HAGELSCHADENREPARATUR PDR-METHODE", "total_time": 10.5, "total_price": 2500.0, "cost_center": "hail"},
+      {"text": "FAHRZEUGREINIGUNG", "total_time": 0.5, "total_price": 40.0, "cost_center": "others"}
+    ],
+    "explain": true
+  }'
+```
+
+### Example response (abbreviated)
+
+```json
+{
+  "make": "VOLKSWAGEN",
+  "n_positions": 2,
+  "input_summary": { "total_time_hrs": 11.0, "total_price_eur": 2540.0 },
+  "predictions": {
+    "hailrepair":   { "label": "Hail repair",  "active": true,  "probability": 1.00, "threshold": 0.35, "predicted_hours": 10.81 },
+    "cleaning":     { "label": "Cleaning",     "active": true,  "probability": 1.00, "threshold": 0.30, "predicted_hours":  1.58 },
+    "calibration": { "label": "Calibration",  "active": false, "probability": 0.02, "threshold": 0.42, "predicted_hours":  0.00 }
+  },
+  "active_steps": ["hailrepair", "cleaning"],
+  "total_predicted_hours": 12.39,
+  "elapsed_ms": 37.1,
+  "explanation": {
+    "hailrepair": { "triggered_keywords": ["hagel", "pdr"], "matching_positions": ["HAGELSCHADENREPARATUR PDR-METHODE"] }
+  }
+}
+```
+
+### Degraded mode
+
+If the pipeline artifact (`models/two_stage_pipeline.pkl`) is not found at startup, the service starts in **degraded mode** rather than crashing:
+
+```json
+// GET /health → HTTP 503
+{ "status": "degraded", "model_loaded": false, "n_targets": 0 }
+
+// POST /predict → HTTP 503
+{ "error": { "code": "MODEL_NOT_READY", "message": "...", "details": null } }
+```
+
+Run `make train` to create the artifact, then restart the service.
+
+---
+
+## Running with Docker
+
+The API is fully containerised. The container image is lean (~250 MB) and uses a multi-stage build to keep runtime dependencies minimal.
+
+### Quick demo (recommended)
+
+```bash
+# 1. Train locally first (populates models/)
+make data && make train
+
+# 2. Build and start the container (mounts models/ read-only)
+make docker-serve
+# or equivalently:
+docker compose up --build
+```
+
+The API is now reachable at `http://localhost:8000`.  
+Open `http://localhost:8000/docs` for the Swagger UI.
+
+### Without Compose
+
+```bash
+# Build the image
+docker build -t work-step-time-prediction:latest .
+
+# Run — mount the host models/ directory so the trained artifact is available
+docker run -p 8000:8000 \
+  -v "$(pwd)/models:/app/models:ro" \
+  work-step-time-prediction:latest
+```
+
+### Model artifact strategy
+
+| Approach | When to use |
+|---|---|
+| **Mount `models/` at runtime** *(default)* | Local demo, CI, or any workflow where you train outside the container |
+| **Bake artifacts into the image** | Snapshot releases — uncomment the `COPY models/` line in the Dockerfile |
+
+The service starts in **degraded mode** (HTTP 503 from `/health`) if the pickle is not found — this is intentional and mirrors the production health-check contract.
+
+### Environment variables
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `PORT` | `8000` | Port Uvicorn listens on |
+| `PYTHONUNBUFFERED` | `1` | Ensures logs stream immediately |
+
+```bash
+# Run on a different port
+docker run -p 9000:9000 -e PORT=9000 \
+  -v "$(pwd)/models:/app/models:ro" \
+  work-step-time-prediction:latest
+```
+
+### Stop the container
+
+```bash
+make docker-down
+# or:
+docker compose down
+```
+
+---
+
+## Model lifecycle
+
+This repository demonstrates a controlled, file-based model lifecycle with
+explicit promotion rules — no external registry required.
+
+### Concepts
+
+| Slot | Path | Description |
+|---|---|---|
+| **Champion** | `models/` | Live model — what the API and Docker setup serve |
+| **Challenger** | `models/challenger/` | Newly trained candidate awaiting comparison |
+| **Archive** | `models/archive/<version>_<ts>/` | Retired champions retained for audit |
+
+### Workflow
+
+```bash
+# 1. Ensure the current champion has evaluation metrics
+make train                    # writes models/metrics.json alongside the pkl
+
+# 2. Train a challenger — live champion is untouched
+make train-challenger         # writes models/challenger/metrics.json
+
+# 3. Inspect the comparison without making any changes
+make promote-dry              # prints rule evaluation to stdout
+
+# 4. Promote if satisfied (or reject if rules fail)
+make promote                  # archives old champion, copies challenger to models/
+```
+
+### Promotion rules
+
+All three rules must pass for promotion to happen.  If any rule fails, the
+champion is unchanged and the challenger remains in `models/challenger/`.
+
+| Rule | Condition | Rationale |
+|---|---|---|
+| **R1 FW-F1** | challenger FW-F1 ≥ champion FW-F1 − 0.005 | Primary business metric; ≤0.5pp dip tolerated |
+| **R2 FW-MAE** | challenger FW-MAE ≤ champion FW-MAE × 1.05 | Duration quality guard; ≤5% MAE regression allowed |
+| **R3 Macro-F1** | challenger macro-F1 ≥ champion macro-F1 − 0.010 | Rare-step fairness; prevents collapse on low-frequency targets |
+
+### Decision artifacts
+
+Each promotion run writes two files to `models/`:
+
+| File | Format | Purpose |
+|---|---|---|
+| `promotion_decision.json` | JSON | Machine-readable result (decision, per-rule pass/fail, timestamps) |
+| `promotion_report.md` | Markdown | Human-readable summary with metric comparison table and rule rationale |
+
+A `--dry-run` flag prints the report to stdout without touching any files.
+
 ---
 
 ## How to review this repository in 5 minutes
@@ -218,13 +459,16 @@ If you are reviewing this project for an interview, code review, or portfolio as
 3. **Read the [Model Card](MODEL_CARD.md)**  
    See intended use, limitations, risk boundaries, and known failure modes.
 
-4. **Inspect `scripts/train.py` and `scripts/predict.py`**  
-   These show how the training and inference flow is orchestrated.
+4. **Browse the API at `http://localhost:8000/docs`**  
+   After `make train && make serve`, the Swagger UI shows the full contract interactively.
 
-5. **Inspect `src/repair_order/features.py`**  
+5. **Inspect `scripts/train.py` and `app/predictor.py`**  
+   These show how training and inference are orchestrated.
+
+6. **Inspect `src/repair_order/features.py`**  
    This is where raw JSON repair-order content becomes model-ready features.
 
-6. **Run the public synthetic workflow**  
+7. **Run the public synthetic workflow**  
    Generate synthetic data, train, test, and predict locally or via CI.
 
 ---
@@ -271,13 +515,34 @@ When running inference, the script produces an explainable report showing predic
 
 This repository is intentionally structured as a **package-first, reproducible ML project** rather than a notebook dump.
 
-- shared code in `src/repair_order/`
-- editable install via `pyproject.toml`
-- synthetic-data reproducibility
-- test suite under `tests/`
-- CI workflow that runs train/test/predict
-- changelog and model card included
-- experiment history documented in `docs/` and `experiments/`
+| Signal | Detail |
+|---|---|
+| Package structure | `src/repair_order/` shared package, editable install via `pyproject.toml` |
+| Reproducibility | Synthetic data generator — full workflow runs without private data |
+| Testing | Unit, smoke, functional, API integration, and lifecycle tests (37 tests across 4 files, 2 Python versions) |
+| CI | GitHub Actions: lint (src+scripts+tests+app) → generate → train → predict → API validation |
+| Inference API | FastAPI + Pydantic v2 — validated schemas, degraded-mode startup, Swagger UI |
+| Containerisation | Multi-stage Dockerfile + Compose — `make docker-serve` starts the API in one step |
+| Artifact metadata | `model_info.json` + `metrics.json` sidecar written by training |
+| Model lifecycle | Champion-challenger workflow — `make promote-dry` / `make promote` with decision report |
+| Model card | Intended use, limitations, failure modes — see [MODEL_CARD.md](MODEL_CARD.md) |
+| Experiment log | Full path from baseline to final pipeline — see [Project Evolution](docs/project_evolution.md) |
+
+---
+
+## Future production hardening
+
+This is a portfolio-grade project, not a deployed system. The following steps
+would be required to take it to a production deployment:
+
+| Area | What would change |
+|---|---|
+| **Model registry** | Replace the file-based `models/` lifecycle with MLflow, Vertex AI Model Registry, or SageMaker Model Registry for multi-team auditability |
+| **Scheduled retraining** | Trigger `train-challenger` and `promote` via Airflow, Prefect, or GitHub Actions on a schedule or data-drift event |
+| **Observability** | Feed `/predict` request logs to Prometheus + Grafana or Datadog; track confidence distributions and prevalence drift over time |
+| **Config / secrets** | Move model paths, thresholds, and feature config to a config management layer (e.g., Hydra, Dynaconf) with secrets in Vault or cloud KMS |
+| **Deployment environment** | Deploy the container to Cloud Run, ECS Fargate, or Kubernetes; add TLS termination, rate limiting, and autoscaling |
+| **Ground-truth reconciliation** | Build a feedback loop comparing `predicted_hours` to actual repair hours to measure real-world drift |
 
 ---
 
@@ -297,36 +562,54 @@ For a fuller treatment of limitations, intended use, and failure modes, see the 
 
 ```text
 .
+├── app/                            # ★ FastAPI inference service
+│   ├── main.py                     #   App entry point, lifespan, exception handlers
+│   ├── schemas.py                  #   Pydantic v2 request/response models
+│   ├── predictor.py                #   PipelinePredictor singleton & adapter
+│   └── routers/
+│       ├── health.py               #   GET /health
+│       ├── predict.py              #   POST /predict
+│       └── model_info.py           #   GET /model-info
+│
 ├── scripts/                        # Core runnable scripts
-│   ├── generate_synthetic_data.py  # Public synthetic dataset generator
-│   ├── train.py                    # Training pipeline
-│   ├── predict.py                  # Inference script with explanations
-│   └── eda.py                      # Exploratory data analysis
+│   ├── generate_synthetic_data.py  #   Public synthetic dataset generator
+│   ├── train.py                    #   Training pipeline (writes pkl + model_info.json + metrics.json)
+│   ├── predict.py                  #   Batch inference script with explanations
+│   ├── promote.py                  #   ★ Champion-challenger comparison + promotion
+│   └── monitoring_report.py        #   ★ Post-deployment drift & quality report
 │
 ├── src/repair_order/               # Shared Python package
-│   ├── config.py                   # Constants (targets, keywords, makes)
-│   ├── features.py                 # Feature engineering functions
-│   └── pipeline.py                 # Pipeline load + predict utilities
+│   ├── config.py                   #   Constants (targets, keywords, makes)
+│   ├── features.py                 #   Feature engineering functions
+│   └── pipeline.py                 #   Pipeline load + predict utilities
+│
+├── models/                         # Trained artifacts + lifecycle metadata
+│   ├── two_stage_pipeline.pkl      #   Serialised champion pipeline
+│   ├── model_info.json             #   ★ Version, date, targets (generated)
+│   ├── metrics.json                #   ★ Champion evaluation metrics (generated)
+│   ├── promotion_decision.json    #   ★ Latest promotion decision (generated)
+│   ├── promotion_report.md         #   ★ Human-readable promotion summary (generated)
+│   ├── challenger/                 #   ★ Challenger slot (train with --target-dir)
+│   └── archive/                    #   ★ Retired champions (auto-managed by promote.py)
 │
 ├── docs/                           # Documentation & reports
-│   ├── project_evolution.md        # Experiment history and optimization journey
-│   ├── markdowns/                  # Component-level documentation
-│   └── assets/                     # Images / plots
+│   ├── project_evolution.md        #   Experiment history and optimization journey
+│   ├── markdowns/                  #   Component-level documentation & training report
+│   └── assets/                     #   Images / plots
 │
 ├── experiments/                    # Experimental pipelines
-│   ├── combined_best/
-│   ├── gbert_base/
-│   ├── hailrepair_mae_exp/
-│   └── log_transform/
-│
-├── tests/                          # Pytest verification
-├── .github/                        # CI workflows
-├── Makefile                        # Task runner
+├── tests/                          # Pytest suite (unit · smoke · functional · API · lifecycle)
+├── .github/workflows/ci.yml        # CI: lint → generate → train → predict → API + lifecycle tests
+├── Dockerfile                      # ★ Multi-stage API container image
+├── docker-compose.yml             # ★ Local demo: mount models/ + start API
+├── .dockerignore                   # ★ Excludes dev/test/data from build context
+├── Makefile                        # Task runner (setup/data/train/test/serve/promote/docker-*)
 ├── pyproject.toml                  # Dependencies and tool config
-├── requirements.txt                # Compatibility requirements file
 ├── MODEL_CARD.md                   # Model documentation and limitations
 └── CHANGELOG.md                    # Version history
 ```
+
+★ = added in the inference-API, Docker, and lifecycle extensions
 
 ---
 
@@ -334,6 +617,7 @@ For a fuller treatment of limitations, intended use, and failure modes, see the 
 
 - [Project Evolution Summary](docs/project_evolution.md)
 - [Model Card](MODEL_CARD.md)
+- [API Contract](docs/markdowns/api_contract.md)
 - [`tests/README.md`](tests/README.md)
 - [`CHANGELOG.md`](CHANGELOG.md)
 

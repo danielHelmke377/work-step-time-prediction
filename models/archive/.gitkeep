@@ -1,0 +1,12 @@
+# This file keeps the models/archive/ directory tracked by Git.
+# It serves as the archive slot for retired champions in the lifecycle.
+#
+# Archived champions are written here automatically by scripts/promote.py
+# under timestamped sub-directories, e.g.:
+#   models/archive/champion_v2.0.0_20260321_120000/
+#
+# Each archive slot contains the full set of champion artifacts at the moment
+# of the promotion that displaced it:
+#   two_stage_pipeline.pkl
+#   model_info.json
+#   metrics.json

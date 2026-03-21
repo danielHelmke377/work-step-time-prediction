@@ -1,0 +1,9 @@
+# This file keeps the models/challenger/ directory tracked by Git.
+# It serves as the challenger model slot in the champion-challenger lifecycle.
+#
+# Usage:
+#   python scripts/train.py --target-dir models/challenger
+#   python scripts/promote.py --dry-run
+#   python scripts/promote.py
+#
+# See README.md → Model lifecycle for the full workflow.
