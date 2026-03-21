@@ -33,53 +33,16 @@ make docker-serve  # same, but containerised
 make train-challenger && make promote-dry  # demo the champion-challenger lifecycle
 ```
 
----
-
-## Why this project matters
-
-Body-shop planning depends on estimating **which repair steps will happen** and **how long they will take** before work begins. This repository tackles that problem with a practical two-stage ML system:
-
-- **Stage 1:** predict which work steps occur
-- **Stage 2:** predict duration only for the work steps predicted active
-
-That design keeps the problem aligned with the real business workflow and avoids predicting duration for steps that are unlikely to happen.
-
----
-
-## What this project demonstrates
+## ML approach
 
 - **Multi-label → conditional regression cascade**  
-  Stage 1 classifies work-step occurrence; Stage 2 predicts duration only for active steps.
+  Stage 1 predicts which of 14 work steps occur; Stage 2 predicts duration only for steps predicted active. Separating occurrence from duration keeps predictions aligned with how body-shop planners actually think and avoids regressing on steps that won't happen.
 
 - **NLP on German domain text**  
-  Uses TF-IDF word + character n-grams, 17 hand-crafted regex keyword flags, and cost-center / price aggregation features.
+  TF-IDF word + character n-grams, 17 hand-crafted regex keyword flags, and cost-center / price aggregations. German automotive terminology required careful domain-specific tokenisation and keyword engineering.
 
-- **Systematic ML experimentation**  
-  Tracks the path from baseline rules through logistic regression, LightGBM, BERT-embedding variants, and combined best-pipeline experiments.
-
-- **Production-style inference API** *(new)*  
-  FastAPI service with validated Pydantic v2 schemas, degraded-mode startup, `/health` + `/predict` + `/model-info` endpoints, and a 23-test integration suite.
-
-- **Model lifecycle (champion–challenger)**  
-  File-based lifecycle layer: train a challenger, evaluate against 3 explicit promotion rules, promote or reject with a structured decision report — no external registry.
-
-- **Engineering discipline**  
-  Shared `src/repair_order/` package, editable install, tests, CI on Python 3.11 + 3.12, reproducible public workflow on synthetic data.
-
-- **Public reproducibility despite private source data**  
-  Includes a synthetic data generator so the full train → test → predict path runs end to end without NDA-restricted production data.
-
----
-
-## At a glance
-
-- **Problem:** predict 14 binary repair work steps and their durations from raw JSON repair orders
-- **Domain:** German automotive body-shop / repair-order planning
-- **Modeling strategy:** two-stage pipeline with LightGBM classification + per-target best regressor
-- **Text features:** TF-IDF word n-grams, character n-grams, regex keyword flags
-- **Structured features:** cost-center, time, price, and count aggregations
-- **Public workflow:** synthetic-data generation, training, tests, and inference included
-- **Validation:** strict single train/validation/test split on the available dataset
+- **Systematic experimentation**  
+  Documented path from a rule baseline through logistic regression, LightGBM, and BERT-embedding variants. The [Project Evolution Summary](docs/project_evolution.md) records every key decision and what the data showed.
 
 ---
 
@@ -98,18 +61,18 @@ The final prototype performs strongly for the target business context, with eval
 > All reported metrics come from a **single strict train/validation/test split** with a 20% hold-out test set.  
 > Cross-validation was **not** used in this prototype evaluation.
 
----
+### Key design decisions
 
-## Engineering showcase — key takeaways
+Three questions come up in every technical interview about this project:
 
-This repository is designed to demonstrate **practical ML engineering skills** beyond just model performance:
+- **Why two-stage instead of a single multi-output model?**  
+  Predicting duration for a step that won't happen produces noise. The cascade ensures Stage 2 only runs where Stage 1 predicts presence, keeping predictions aligned with how planners actually think.
 
-- **End-to-end ML system** — raw JSON in, REST predictions out: feature engineering → training → serialised artifact → FastAPI → Docker container
-- **Tested inference API** — 23 integration tests covering all 3 endpoints, validated schemas, degraded-mode graceful startup, Swagger UI
-- **Champion-challenger lifecycle** — explicit 3-rule promotion logic (`make promote`), structured decision artifacts, archiving — no external registry needed
-- **Production operational patterns** — health-check contract, artifact metadata sidecar, monitoring snapshot generation, containerised serving
-- **Reproducible public workflow** — synthetic data generator means the full train → test → predict path runs for anyone, in CI and locally
-- **Systematic experimentation** — documented path from rule baseline through logistic regression, LightGBM, and BERT embedding variants to the final pipeline
+- **Why LightGBM over BERT for the production pipeline?**  
+  BERT embeddings were evaluated and are tracked in the experiment log. LightGBM on TF-IDF matched BERT on the frequency-weighted metrics that matter most here, while training in seconds rather than minutes — a more practical choice for a small-data, fast-retraining scenario.
+
+- **Why file-based lifecycle instead of MLflow?**  
+  For a single-team portfolio workflow, a file-based champion/challenger pattern with explicit promotion rules is easier to inspect, version in Git, and explain than spinning up a tracking server. The `scripts/promote.py` design makes the transition to MLflow or Vertex AI straightforward when team scale requires it.
 
 ---
 
@@ -560,20 +523,7 @@ When running inference, the script produces an explainable report showing predic
 
 ## Engineering quality signals
 
-This repository is intentionally structured as a **package-first, reproducible ML project** rather than a notebook dump.
-
-| Signal | Detail |
-|---|---|
-| Package structure | `src/repair_order/` shared package, editable install via `pyproject.toml` |
-| Reproducibility | Synthetic data generator — full workflow runs without private data |
-| Testing | Unit, smoke, functional, API integration, and lifecycle tests (37 tests across 4 files, 2 Python versions) |
-| CI | GitHub Actions: lint (src+scripts+tests+app) → generate → train → predict → API validation |
-| Inference API | FastAPI + Pydantic v2 — validated schemas, degraded-mode startup, Swagger UI |
-| Containerisation | Multi-stage Dockerfile + Compose — `make docker-serve` starts the API in one step |
-| Artifact metadata | `model_info.json` + `metrics.json` sidecar written by training |
-| Model lifecycle | Champion-challenger workflow — `make promote-dry` / `make promote` with decision report |
-| Model card | Intended use, limitations, failure modes — see [MODEL_CARD.md](MODEL_CARD.md) |
-| Experiment log | Full path from baseline to final pipeline — see [Project Evolution](docs/project_evolution.md) |
+Package-first structure (`src/repair_order/`), editable install, 37 tests across 4 files, CI on Python 3.11 + 3.12, FastAPI + Pydantic v2, multi-stage Dockerfile, champion-challenger lifecycle with structured decision artifacts, and a [Model Card](MODEL_CARD.md). See the [Project Evolution Summary](docs/project_evolution.md) for the full experiment history.
 
 ---
 
@@ -602,6 +552,14 @@ would be required to take it to a production deployment:
 - This is a **prototype-to-production-style portfolio project**, not a deployed SaaS system
 
 For a fuller treatment of limitations, intended use, and failure modes, see the [Model Card](MODEL_CARD.md).
+
+### What I'd do differently
+
+Given a second pass with more time:
+
+- **Replace the single train/validation/test split with cross-validation** or at minimum a repeated hold-out. The current split gives a point estimate but no variance estimate on the metrics.
+- **Add prevalence drift alerting to the monitoring layer.** The current snapshot flags drift but doesn't automate the alert. In production, a step whose prevalence shifts >10pp silently is a real risk.
+- **Use property-based testing for the feature engineering functions.** The current `test_functional.py` is end-to-end but doesn't directly verify edge-case inputs to `features.py` (e.g. empty text, zero-price positions, unknown cost-centers).
 
 ---
 
