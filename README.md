@@ -11,6 +11,8 @@ The domain: predicting **14 repair work steps** and their **execution time in ho
 
 > Built from a rapid business assessment prototype and iterated toward production-oriented quality. See the [Project Evolution Summary](docs/project_evolution.md) for the full experiment path.
 
+---
+
 ## What you can run right now
 
 ```bash
@@ -123,6 +125,7 @@ flowchart TD
 ```
 
 ### Stage 1 — Multi-label occurrence prediction
+
 Predicts binary presence (`0/1`) for each of the 14 work steps independently.
 
 - Uses **`LGBMClassifier`** uniformly across all targets
@@ -134,6 +137,7 @@ Predicts binary presence (`0/1`) for each of the 14 work steps independently.
   - cost-center / price / time aggregations
 
 ### Stage 2 — Conditional duration prediction
+
 Predicts duration **only** for targets predicted active by Stage 1.
 
 - Uses a **per-target best regressor**
@@ -190,6 +194,7 @@ flowchart LR
 > This repository remains **fully reproducible on synthetic data**. You can generate synthetic orders, train the full two-stage pipeline, run tests, and execute predictions locally and in CI.
 
 ### Validated public workflow
+
 The public workflow supports:
 
 - synthetic data generation
